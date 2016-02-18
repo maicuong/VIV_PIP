@@ -1,0 +1,30 @@
+Vivado Simulator 2015.3
+Copyright 1986-1999, 2001-2015 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2015.3/bin/unwrapped/win64.o/xelab.exe -wto c1c93375afed4e18a1b126f1fbeb919e --debug typical --relax --mt 2 -L xil_defaultlib -L secureip --snapshot PIPELINE_behav xil_defaultlib.PIPELINE -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package ieee.std_logic_1164
+Compiling package ieee.std_logic_arith
+Compiling package ieee.std_logic_unsigned
+Compiling architecture behavioral of entity xil_defaultlib.pos_et_d_ff [pos_et_d_ff_default]
+Compiling architecture behavioral of entity xil_defaultlib.reg_pos_et_d_ff [reg_pos_et_d_ff_default]
+Compiling architecture behavioral of entity xil_defaultlib.reg_16 [reg_16_default]
+Compiling architecture behavioral of entity xil_defaultlib.ha [ha_default]
+Compiling architecture behavioral of entity xil_defaultlib.rw_counter_16 [rw_counter_16_default]
+Compiling architecture behavioral of entity xil_defaultlib.rw_counter [rw_counter_default]
+Compiling architecture behavioral of entity xil_defaultlib.rw_d_counter_16 [rw_d_counter_16_default]
+Compiling architecture behavioral of entity xil_defaultlib.sp_reg [sp_reg_default]
+Compiling architecture behavioral of entity xil_defaultlib.op_decoder [op_decoder_default]
+Compiling architecture behavioral of entity xil_defaultlib.ctl_sig [ctl_sig_default]
+Compiling architecture behavioral of entity xil_defaultlib.Byte [byte_default]
+Compiling architecture behavioral of entity xil_defaultlib.controller [controller_default]
+Compiling architecture behavioral of entity xil_defaultlib.VM [vm_default]
+Compiling architecture rtl of entity xil_defaultlib.MEMORY [memory_default]
+Compiling architecture rtl of entity xil_defaultlib.MEMORY_8 [memory_8_default]
+Compiling architecture behavioral of entity xil_defaultlib.pipeline
+Built simulation snapshot PIPELINE_behav

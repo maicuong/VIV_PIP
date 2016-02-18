@@ -1,0 +1,20 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/pos_et_d_ff.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/ha.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/reg_pos_et_d_ff.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/r_d_counter_16.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/Byte.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/ctl_sig.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/sp_reg.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/op_decoder.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter_16.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/reg_16.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/controller.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/VM.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY_8.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/PIPELINE.vhd"
+
+# Do not sort compile order
+nosort

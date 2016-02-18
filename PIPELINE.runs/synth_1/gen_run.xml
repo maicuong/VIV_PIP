@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="synth_1" LaunchPart="xc7z010clg400-1" LaunchTime="1455770930">
+  <File Type="RDS-DCP" Name="PIPELINE.dcp"/>
+  <File Type="RUN-CONSTRS" Name="$PDATADIR/runs/synth_1/constrs_in.xml"/>
+  <File Type="RDS-UTIL-PB" Name="PIPELINE_utilization_synth.pb"/>
+  <File Type="RUN-SRCS" Name="$PDATADIR/runs/synth_1/sources.xml"/>
+  <File Type="RDS-PROPCONSTRS" Name="PIPELINE_drc_synth.rpt"/>
+  <File Type="PA-TCL" Name="PIPELINE.tcl"/>
+  <File Type="RUN-STRAT" Name="$PDATADIR/runs/synth_1/synth_1.psg"/>
+  <File Type="RDS-RDS" Name="PIPELINE.vds"/>
+  <File Type="RDS-UTIL" Name="PIPELINE_utilization_synth.rpt"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="PIPELINE_timing_summary_synth.rpt"/>
+  <File Type="VDS-TIMING-PB" Name="PIPELINE_timing_summary_synth.pb"/>
+  <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
+    <Filter Type="Srcs"/>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/pos_et_d_ff.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/pos_et_d_ff.vhd"/>
+        <Attr Name="ImportTime" Val="1455614315"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/ha.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/ha.vhd"/>
+        <Attr Name="ImportTime" Val="1455616461"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/reg_pos_et_d_ff.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/reg_pos_et_d_ff.vhd"/>
+        <Attr Name="ImportTime" Val="1455614514"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/Byte.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/Byte.vhd"/>
+        <Attr Name="ImportTime" Val="1455687114"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/ctl_sig.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/ctl_sig.vhd"/>
+        <Attr Name="ImportTime" Val="1455688406"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/rw_counter.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/rw_counter.vhd"/>
+        <Attr Name="ImportTime" Val="1455730277"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/op_decoder.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/op_decoder.vhd"/>
+        <Attr Name="ImportTime" Val="1455618124"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/rw_counter_16.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/rw_counter_16.vhd"/>
+        <Attr Name="ImportTime" Val="1455618423"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/reg_16.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/reg_16.vhd"/>
+        <Attr Name="ImportTime" Val="1455614591"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/controller.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/controller.vhd"/>
+        <Attr Name="ImportTime" Val="1455689626"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/sp_reg.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/sp_reg.vhd"/>
+        <Attr Name="ImportTime" Val="1455766604"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/VM.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/VM.vhd"/>
+        <Attr Name="ImportTime" Val="1455689915"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/MEMORY.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/MEMORY.vhd"/>
+        <Attr Name="ImportTime" Val="1455692203"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/MEMORY_8.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/MEMORY_8.vhd"/>
+        <Attr Name="ImportTime" Val="1455708795"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/PIPELINE/PIPELINE.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../PIPELINE/PIPELINE.vhd"/>
+        <Attr Name="ImportTime" Val="1455692890"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="DesignMode" Val="RTL"/>
+      <Option Name="TopModule" Val="PIPELINE"/>
+      <Option Name="TopAutoSet" Val="TRUE"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
+    <Filter Type="Constrs"/>
+    <File Path="$PSRCDIR/constrs_1/new/PIPELINE.xdc">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="ConstrsType" Val="XDC"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015"/>
+    <Step Id="synth_design"/>
+  </Strategy>
+</GenRun>
