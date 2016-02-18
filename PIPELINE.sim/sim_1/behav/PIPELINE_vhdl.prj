@@ -11,6 +11,7 @@ vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/op_decod
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter_16.vhd"
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/reg_16.vhd"
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/controller.vhd"
+vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/new/MEMORY_STK.vhd"
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/VM.vhd"
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY.vhd"
 vhdl xil_defaultlib  "../../../PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY_8.vhd"

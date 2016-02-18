@@ -3,10 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity controller is
 	port(clk, rst, Byte_r: in std_logic;
-			nez_in, text_in : in std_logic_vector(7 downto 0);
-			  PRout, MARout, 
-			s_inc, s_mdi,
-			PRlat, MARlat, IRlat, read, write , S_fail, S_match: out std_logic);
+			nez_in, text_in : in std_logic_vector(7 downto 0); 
+			s_inc, SPlat, s_inc_sp, get_sp, 
+			PRlat, IRlat, read, write , read_stk, write_stk, S_fail, S_match: out std_logic);
 end controller;
 
 architecture Behavioral of controller is
@@ -21,20 +20,20 @@ architecture Behavioral of controller is
 	
 	---F1,F2,F3,Dec 
 	signal S_F1_D, S_f1 : std_logic;
-	signal S_F2_D, S_f2 : std_logic;
 	signal S_Dec_D, S_dec : std_logic;
+	signal S_Fail_D, S_fail_cond : std_logic;
+	signal S_Imp_D, S_Imp : std_logic;
 	
 	component ctl_sig
-	port(f1, f2 : in std_logic;
-			 PRout, MARout,
-			s_inc, s_mdi,
-			PRlat, MARlat,  IRlat, read, write : out std_logic);
+	port(f1 , fail : in std_logic;
+			s_inc, s_inc_sp, SPlat, get_sp,
+			PRlat,  IRlat, read, write, read_stk, write_stk : out std_logic);
 	end component;
 	
 	
 	---ctl_sig
-	signal S_PRout, S_MARout,
-			S_s_inc, S_s_mdi, S_PRlat, S_MARlat, S_IRlat, S_read, S_write :  std_logic;
+	signal S_s_inc_sp, S_SPlat, S_get_sp,
+			S_s_inc, S_PRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk:  std_logic;
 	
 	
 	
@@ -48,6 +47,8 @@ architecture Behavioral of controller is
 		FAIL : out std_logic;
 		MATCH : out std_logic);
 	end component;
+	
+	signal S_s_match, S_s_fail, match_sig, fail_sig : std_logic;
 
 begin
 
@@ -65,13 +66,6 @@ begin
 		 rst =>rst,
 		 Q => S_f1);
 		 
-	F2 : reg_pos_et_d_ff port map
-		(clk => clk,
-		 D => S_F2_D,
-		 lat => '1',
-		 rst =>rst,
-		 Q => S_f2);
-		 
 	Dec : reg_pos_et_d_ff port map
 		(clk => clk,
 		 D => S_Dec_D,
@@ -79,47 +73,64 @@ begin
 		 rst =>rst,
 		 Q => S_dec);
 		 
+	Fail : reg_pos_et_d_ff port map
+         (clk => clk,
+          D => S_Fail_D,
+          lat => '1',
+          rst =>rst,
+          Q => S_fail_cond); 
+		 
 	ctl_sig1 : ctl_sig port map
 		 (f1 => S_f1,
-		  f2 => S_f2,
-		  PRout => S_PRout,
-		  MARout => S_MARout,
+		  fail => S_fail_cond,
 		  s_inc => S_s_inc,
-		  s_mdi => S_s_mdi,
+		  s_inc_sp => S_s_inc_sp,
+		  SPlat => S_SPlat,
+		  get_sp => S_get_sp,
 			PRlat => S_PRlat,
-			MARlat => S_MARlat,
 			IRlat => S_IRlat,
 			read => S_read,
-			write => S_write);
+			write => S_write,
+			read_stk => S_read_stk,
+			write_stk => S_write_stk);
 			
 	Byte1 : Byte port map (
 		TRG => Byte_r,
 		TEXT_IN => text_in,
 		NEZ_IN => nez_in,
-		FAIL => S_fail,
-		MATCH => S_match);
+		FAIL => S_s_fail,
+		MATCH => S_s_match);
 	
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_D <= S_START or S_Byte;
-	------------F2
-	S_F2_D <= S_f1;
+	S_F1_D <= S_START or match_sig or S_fail_cond;
 	------------Dec-
-	S_Dec_D <= S_f2;
-	S_Byte <= S_dec and Byte_r;
+	S_Dec_D <= S_f1;
+	match_sig <= S_s_match and S_dec;
+	fail_sig <= S_s_fail and S_dec;
+	------------Fail
+	S_Fail_D <= fail_sig;
 	
-	PRout <= S_PRout;
-	MARout <= S_MARout;
+	
+	S_Byte <=  Byte_r;
+	--S_Byte <= ((S_dec and S_s_match) or S_fail_cond) and  Byte_r;
 
 
 	s_inc <= S_s_inc;
-	s_mdi <= S_s_mdi;
 	PRlat <= S_PRlat;
-	MARlat <= S_MARlat;
 	IRlat <= S_IRlat;
 	read <= S_read;
 	write <= S_write;
+	SPlat <= S_SPlat;
+	s_inc_sp <= S_s_inc_sp;
+	get_sp <= S_get_sp;
+	
+	S_match <= match_sig;
+	S_fail <= fail_sig;
+	
+	read_stk <= S_read_stk;
+	write_stk <= S_write_stk;
 
 
 end Behavioral;

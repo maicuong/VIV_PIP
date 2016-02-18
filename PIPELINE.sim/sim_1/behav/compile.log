@@ -22,6 +22,8 @@ INFO: [VRFC 10-163] Analyzing VHDL file "C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.src
 INFO: [VRFC 10-307] analyzing entity reg_16
 INFO: [VRFC 10-163] Analyzing VHDL file "C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/controller.vhd" into library xil_defaultlib
 INFO: [VRFC 10-307] analyzing entity controller
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/new/MEMORY_STK.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity MEMORY_STK
 INFO: [VRFC 10-163] Analyzing VHDL file "C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/VM.vhd" into library xil_defaultlib
 INFO: [VRFC 10-307] analyzing entity VM
 INFO: [VRFC 10-163] Analyzing VHDL file "C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY.vhd" into library xil_defaultlib

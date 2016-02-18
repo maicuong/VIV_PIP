@@ -26,5 +26,6 @@ Compiling architecture behavioral of entity xil_defaultlib.controller [controlle
 Compiling architecture behavioral of entity xil_defaultlib.VM [vm_default]
 Compiling architecture rtl of entity xil_defaultlib.MEMORY [memory_default]
 Compiling architecture rtl of entity xil_defaultlib.MEMORY_8 [memory_8_default]
+Compiling architecture rtl of entity xil_defaultlib.MEMORY_STK [memory_stk_default]
 Compiling architecture behavioral of entity xil_defaultlib.pipeline
 Built simulation snapshot PIPELINE_behav

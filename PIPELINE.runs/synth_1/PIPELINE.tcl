@@ -17,14 +17,16 @@ read_vhdl -library xil_defaultlib {
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/pos_et_d_ff.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/ha.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/reg_pos_et_d_ff.vhd
+  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/r_d_counter_16.vhd
+  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/Byte.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/ctl_sig.vhd
-  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter.vhd
+  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/sp_reg.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/op_decoder.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/rw_counter_16.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/reg_16.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/controller.vhd
-  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/sp_reg.vhd
+  C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/new/MEMORY_STK.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/VM.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY.vhd
   C:/FPGAPrj/VIVADO/PIPELINE/PIPELINE.srcs/sources_1/imports/PIPELINE/MEMORY_8.vhd
