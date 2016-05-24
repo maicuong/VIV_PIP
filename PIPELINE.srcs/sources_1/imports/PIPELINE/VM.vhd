@@ -15,22 +15,22 @@ end VM;
 
 architecture Behavioral of VM is
 
-	component reg_16
-	port(clk,lat,rst : in std_logic;
-			a : in std_logic_vector(31 downto 0);
-			f : out std_logic_vector(31 downto 0));
+	component reg_16 port(
+	   clk, lat, rst : in std_logic;
+	   a : in std_logic_vector(31 downto 0);
+	   f : out std_logic_vector(31 downto 0));
 	end component;
 	
-	component rw_counter_16
-	port(lat,clk,rst,s_inc : in std_logic;
-			d : in std_logic_vector(31 downto 0);
-			f : out std_logic_vector(31 downto 0));
+	component rw_counter_16 port(
+	   lat, clk, rst, s_inc : in std_logic;
+	   d : in std_logic_vector(31 downto 0);
+	   f : out std_logic_vector(31 downto 0));
 	end component;
 	
-	component sp_reg
-	port(lat,clk,rst,s_dcr,s_inc : in std_logic;
-	d : in std_logic_vector(15 downto 0);
-	f : out std_logic_vector(15 downto 0));
+	component sp_reg port(
+	   lat, clk, rst, s_dcr, s_inc : in std_logic;
+	   d : in std_logic_vector(15 downto 0);
+	   f : out std_logic_vector(15 downto 0));
 	end component;
 	
 	
@@ -47,28 +47,24 @@ architecture Behavioral of VM is
 	signal S_PRlat, S_s_inc : std_logic;
 	signal S_PR_F : std_logic_vector(31 downto 0);
 	
-	component op_decoder
-	port(Op : in std_logic_vector(7 downto 0);
-		  Byte_r: out std_logic);
+	component op_decoder port(
+	   Op : in std_logic_vector(7 downto 0);
+       Byte_r: out std_logic);
 	end component;
-	
 	
 	---Byte
 	signal S_Byte_r : std_logic; 
 	
-	
-	component controller
-	port(clk, rst, Byte_r: in std_logic;
-	       nez_in, text_in : in std_logic_vector(7 downto 0);
-			IRlat, SPlat, s_inc_sp, get_sp,   
-			s_inc,
-			PRlat,  read, write, read_stk, write_stk,
-			S_fail, S_match: out std_logic);
+	component controller port(
+	   clk, rst, Byte_r: in std_logic;
+	   nez_in, text_in : in std_logic_vector(7 downto 0);
+	   IRlat, SPlat, s_inc_sp, get_sp,   
+	   s_inc,
+	   PRlat, read, write, read_stk, write_stk, S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
-	signal 
-				   S_read, S_write : std_logic;
+	signal S_read, S_write : std_logic;
 	
 	---IR
 	signal S_IRlat : std_logic;
@@ -88,71 +84,72 @@ architecture Behavioral of VM is
 	
 begin
 
-	IR : reg_16 port map 
-		(clk => clk,
-		lat => S_IRlat,
-		rst => '0',
-		a => S_IR_D,
-		f => S_IR_F);
+	IR : reg_16 port map (
+	   clk => clk,
+	   lat => S_IRlat,
+	   rst => '0',
+	   a => S_IR_D,
+	   f => S_IR_F);
 	 
-	PR : rw_counter_16 port map
-		(lat => S_PRlat,
-		 clk => clk,
-		 rst => rst,
-		 s_inc => S_s_inc,
-		 d => S_BUS_C,
-		 f => S_PR_F);
+	PR : rw_counter_16 port map(
+	   lat => S_PRlat,
+	   clk => clk,
+	   rst => rst,
+	   s_inc => S_s_inc,
+	   d => S_BUS_C,
+	   f => S_PR_F);
 		 
-	TR : rw_counter_16 port map
-		(lat => S_PRlat,
-		 clk => clk,
-		 rst => rst,
-		 s_inc => S_s_inc,
-		 d => (others => '0'),
-		 f => S_TR_F);
+	TR : rw_counter_16 port map (
+	   lat => S_PRlat,
+	   clk => clk,
+	   rst => rst,
+	   s_inc => S_s_inc,
+	   d => (others => '0'),
+	   f => S_TR_F);
 		 
-	SP : sp_reg port map 
-		(lat => S_SPlat,
-		 clk => clk,
-		 rst => rst,
-		 s_inc => S_s_inc_sp,
-		 s_dcr => S_s_dcr,
-		 d => S_SP_D,
-		 f => S_SP_F);
+	SP : sp_reg port map (
+	   lat => S_SPlat,
+	   clk => clk,
+	   rst => rst,
+	   s_inc => S_s_inc_sp,
+	   s_dcr => S_s_dcr,
+	   d => S_SP_D,
+	   f => S_SP_F);
 		 
-	addr_16 <= S_SP_F;
+	op_decoder1 : op_decoder port map(
+	   Op => S_IR_F(15 downto 8), ---
+       Byte_r => S_Byte_r);
 		 
-	S_text_in <= mem_d_8_in;
-		 
-	op_decoder1 : op_decoder port map
-		(Op => S_IR_F(15 downto 8), ---
-		 Byte_r => S_Byte_r);
-		 
-	controller1 : controller port map
-		(clk => clk, 
-		 rst => rst,
-		 Byte_r => S_Byte_r,
-		 nez_in => S_IR_F(7 downto 0), ----
-		 text_in => S_text_in,
-		 IRlat => S_IRlat,
-		 SPlat => S_SPlat,
-		 s_inc_sp => S_s_inc_sp,
-		 get_sp => S_get_sp,
-		 s_inc => S_s_inc,
-		 PRlat => S_PRlat,
-		 S_fail => S_fail,------------
-		 S_match => S_match,----------
-		 read => S_read,
-		 write => S_write,
-		 read_stk => S_read_stk,
-		 write_stk => S_write_stk);
+	controller1 : controller port map(
+	   clk => clk, 
+	   rst => rst,
+	   Byte_r => S_Byte_r,
+       nez_in => S_IR_F(7 downto 0), ----
+	   text_in => S_text_in,
+	   IRlat => S_IRlat,
+	   SPlat => S_SPlat,
+	   s_inc_sp => S_s_inc_sp,
+	   get_sp => S_get_sp,
+	   s_inc => S_s_inc,
+	   PRlat => S_PRlat,
+       S_fail => S_fail,------------
+	   S_match => S_match,----------
+	   read => S_read,
+	   write => S_write,
+	   read_stk => S_read_stk,
+       write_stk => S_write_stk);
 
+
+    --Output	 
+	S_text_in <= mem_d_8_in;
+	
 	S_IR_D <= mem_d_in;
 	
 	read <= S_read;
 	write <= S_write;
 	addr <= S_PR_F;
 	addr_8 <= S_TR_F;
+	addr_16 <= S_SP_F;
 	mem_d_out <= S_IR_F;
 	
 	read_stk <= S_read_stk;

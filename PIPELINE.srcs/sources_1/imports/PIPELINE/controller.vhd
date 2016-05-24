@@ -2,17 +2,17 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity controller is
-	port(clk, rst, Byte_r: in std_logic;
-			nez_in, text_in : in std_logic_vector(7 downto 0); 
-			s_inc, SPlat, s_inc_sp, get_sp, 
-			PRlat, IRlat, read, write , read_stk, write_stk, S_fail, S_match: out std_logic);
+	port(
+	   clk, rst, Byte_r : in std_logic;
+	   nez_in, text_in : in std_logic_vector(7 downto 0); 
+	   s_inc, SPlat, s_inc_sp, get_sp, PRlat, IRlat, read, write , read_stk, write_stk, S_fail, S_match: out std_logic);
 end controller;
 
 architecture Behavioral of controller is
 	
-	component reg_pos_et_d_ff
-	port(clk, D, lat, rst : in std_logic;
-			Q : out std_logic);
+	component reg_pos_et_d_ff port(
+	   clk, D, lat, rst : in std_logic;
+	   Q : out std_logic);
 	end component;
 	
 	---START
@@ -24,17 +24,13 @@ architecture Behavioral of controller is
 	signal S_Fail_D, S_fail_cond : std_logic;
 	signal S_Imp_D, S_Imp : std_logic;
 	
-	component ctl_sig
-	port(f1 , fail : in std_logic;
-			s_inc, s_inc_sp, SPlat, get_sp,
-			PRlat,  IRlat, read, write, read_stk, write_stk : out std_logic);
+	component ctl_sig  port(
+	   f1 , fail : in std_logic;
+	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, IRlat, read, write, read_stk, write_stk : out std_logic);
 	end component;
 	
-	
 	---ctl_sig
-	signal S_s_inc_sp, S_SPlat, S_get_sp,
-			S_s_inc, S_PRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk:  std_logic;
-	
+	signal S_s_inc_sp, S_SPlat, S_get_sp, S_s_inc, S_PRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk:  std_logic;
 	
 	
 	---Byte
@@ -52,47 +48,47 @@ architecture Behavioral of controller is
 
 begin
 
-	START : reg_pos_et_d_ff port map
-		(clk => clk,
-		 D => '1',
-		 lat => '1',
-		 rst => S_START_rst,
-		 Q => S_START);
+	START : reg_pos_et_d_ff port map(
+	   clk => clk,
+	   D => '1',
+	   lat => '1',
+	   rst => S_START_rst,
+	   Q => S_START);
 		 
-	F1 : reg_pos_et_d_ff port map
-		(clk => clk,
-		 D => S_F1_D,
-		 lat => '1',
-		 rst =>rst,
-		 Q => S_f1);
+	F1 : reg_pos_et_d_ff port map(
+	   clk => clk,
+	   D => S_F1_D,
+	   lat => '1',
+	   rst =>rst,
+	   Q => S_f1);
 		 
-	Dec : reg_pos_et_d_ff port map
-		(clk => clk,
-		 D => S_Dec_D,
-		 lat => '1',
-		 rst =>rst,
-		 Q => S_dec);
+	Dec : reg_pos_et_d_ff port map(
+	   clk => clk,
+	   D => S_Dec_D,
+	   lat => '1',
+	   rst =>rst,
+	   Q => S_dec);
 		 
-	Fail : reg_pos_et_d_ff port map
-         (clk => clk,
-          D => S_Fail_D,
-          lat => '1',
-          rst =>rst,
-          Q => S_fail_cond); 
+	Fail : reg_pos_et_d_ff port map(
+	   clk => clk,
+	   D => S_Fail_D,
+       lat => '1',
+       rst =>rst,
+       Q => S_fail_cond); 
 		 
-	ctl_sig1 : ctl_sig port map
-		 (f1 => S_f1,
-		  fail => S_fail_cond,
-		  s_inc => S_s_inc,
-		  s_inc_sp => S_s_inc_sp,
-		  SPlat => S_SPlat,
-		  get_sp => S_get_sp,
-			PRlat => S_PRlat,
-			IRlat => S_IRlat,
-			read => S_read,
-			write => S_write,
-			read_stk => S_read_stk,
-			write_stk => S_write_stk);
+	ctl_sig1 : ctl_sig port map(
+	   f1 => S_f1,
+	   fail => S_fail_cond,
+	   s_inc => S_s_inc,
+	   s_inc_sp => S_s_inc_sp,
+	   SPlat => S_SPlat,
+	   get_sp => S_get_sp,
+	   PRlat => S_PRlat,
+	   IRlat => S_IRlat,
+	   read => S_read,
+	   write => S_write,
+	   read_stk => S_read_stk,
+	   write_stk => S_write_stk);
 			
 	Byte1 : Byte port map (
 		TRG => Byte_r,
@@ -104,10 +100,10 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_D <= S_START or match_sig or S_fail_cond;
+	S_F1_D <= S_START;
 	------------Dec-
 	S_Dec_D <= S_f1;
-	match_sig <= S_s_match and S_dec;
+	--match_sig <= S_s_match and S_dec;
 	fail_sig <= S_s_fail and S_dec;
 	------------Fail
 	S_Fail_D <= fail_sig;
@@ -125,10 +121,9 @@ begin
 	SPlat <= S_SPlat;
 	s_inc_sp <= S_s_inc_sp;
 	get_sp <= S_get_sp;
-	
-	S_match <= match_sig;
+	S_match <= S_s_match;
+	--S_match <= '1';
 	S_fail <= fail_sig;
-	
 	read_stk <= S_read_stk;
 	write_stk <= S_write_stk;
 
