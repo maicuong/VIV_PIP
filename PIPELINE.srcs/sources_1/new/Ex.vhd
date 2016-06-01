@@ -1,0 +1,132 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 2016/05/31 21:56:47
+-- Design Name: 
+-- Module Name: Ex - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity Ex is
+  Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r : in  std_logic;
+        instruction : in std_logic_vector(31 downto 0);
+        text_in : in std_logic_vector(7 downto 0);
+        Match, Fail : out std_logic);
+end Ex;
+
+architecture Behavioral of Ex is
+	---Byte
+component Byte
+    port(
+    TRG : in std_logic;
+    TEXT_IN : in std_logic_vector(7 downto 0);
+    NEZ_IN : in std_logic_vector(7 downto 0) ;
+    FAIL : out std_logic;
+    MATCH : out std_logic);
+end component;
+
+component Set
+    port(
+    TRG : in std_logic;
+    TEXT_IN : in std_logic_vector(7 downto 0);
+    NEZ_IN : in std_logic_vector(15 downto 0) ;
+    FAIL : out std_logic;
+    MATCH : out std_logic);
+end component;
+
+component Set_or
+    port(
+    TRG : in std_logic;
+    TEXT_IN : in std_logic_vector(7 downto 0);
+    NEZ_IN : in std_logic_vector(15 downto 0) ;
+    FAIL : out std_logic;
+    MATCH : out std_logic);
+end component;
+
+component Obyte
+	port(
+		TRG : in std_logic;
+		TEXT_IN : in std_logic_vector(7 downto 0);
+		NEZ_IN : in std_logic_vector(7 downto 0) ;
+		NEXT_TEXT : out std_logic;
+		MATCH : out std_logic);
+end component;
+
+component Nany
+	port(
+		TRG : in std_logic;
+		TEXT_IN : in std_logic_vector(7 downto 0);
+		FAIL : out std_logic;
+		MATCH : out std_logic);
+end component;
+
+signal S_byte_match, S_byte_fail : std_logic;
+signal S_set_match, S_set_fail : std_logic;
+signal S_set_or_match, S_set_or_fail : std_logic;
+signal S_obyte_match, S_obyte_next_text : std_logic;
+signal S_nany_match, S_nany_fail : std_logic;
+
+begin
+
+	Byte1 : Byte port map (
+		TRG => Byte_r,
+		TEXT_IN => text_in,
+		NEZ_IN => instruction(7 downto 0),
+		FAIL => S_byte_fail,
+		MATCH => S_byte_match);
+		
+	Set1 : Set port map(
+        TRG => Set_r,
+        TEXT_IN => text_in,
+        NEZ_IN => instruction(15 downto 0),
+        FAIL => S_set_fail,
+        MATCH => S_set_match);
+        
+	Set_or1 : Set_or port map(
+        TRG => Set_or_r,
+        TEXT_IN => text_in,
+        NEZ_IN => instruction(15 downto 0),
+        FAIL => S_set_or_fail,
+        MATCH => S_set_or_match);
+        
+    Obyte1 : Obyte port map(
+        TRG => Obyte_r,
+        TEXT_IN => text_in,
+        NEZ_IN => instruction(7 downto 0),
+        NEXT_TEXT => S_obyte_next_text,
+        MATCH => S_obyte_match);
+        
+    Nany1 : Nany port map(
+        TRG => Nany_r,
+        TEXT_IN => text_in,
+        FAIL => S_nany_fail,
+        MATCH => S_nany_match);
+
+    Match <= S_byte_match or S_set_match or S_set_or_match or S_obyte_match or S_nany_match;
+    Fail <= S_byte_fail or S_set_fail or S_set_or_fail;
+
+end Behavioral;

@@ -33,6 +33,15 @@ architecture Behavioral of VM is
 	   f : out std_logic_vector(15 downto 0));
 	end component;
 	
+	component Byte
+        port(
+        CLK : in std_logic;
+        TRG : in std_logic;
+        TEXT_IN : in std_logic_vector(7 downto 0);
+        NEZ_IN : in std_logic_vector(7 downto 0) ;
+        FAIL : out std_logic;
+        MATCH : out std_logic);
+    end component;
 	
 	---BUS_A
 	signal S_BUS_A : std_logic_vector(31 downto 0);
@@ -49,15 +58,22 @@ architecture Behavioral of VM is
 	
 	component op_decoder port(
 	   Op : in std_logic_vector(7 downto 0);
-       Byte_r: out std_logic);
+	   trg : in std_logic;
+       Byte_r: out std_logic;
+	   Set_r : out std_logic;
+       Set_or_r : out std_logic;
+       Obyte_r : out std_logic;
+       Nany_r : out std_logic);
 	end component;
 	
 	---Byte
-	signal S_Byte_r : std_logic; 
+	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r : std_logic; 
 	
 	component controller port(
-	   clk, rst, Byte_r: in std_logic;
-	   nez_in, text_in : in std_logic_vector(7 downto 0);
+	   clk, rst, Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r  : in std_logic;
+       instruction : in std_logic_vector(31 downto 0);
+       text_in : in std_logic_vector(7 downto 0);
+	   --S_s_dec : out std_logic;
 	   IRlat, SPlat, s_inc_sp, get_sp,   
 	   s_inc,
 	   PRlat, read, write, read_stk, write_stk, S_fail, S_match: out std_logic);
@@ -81,6 +97,10 @@ architecture Behavioral of VM is
 	signal S_SP_F, S_SP_D : std_logic_vector(15 downto 0);
 	
 	signal S_read_stk, S_write_stk : std_logic;
+	
+	signal S_dec : std_logic;
+	
+	signal dummy1, dummy2 : std_logic;
 	
 begin
 
@@ -117,14 +137,23 @@ begin
 	   f => S_SP_F);
 		 
 	op_decoder1 : op_decoder port map(
-	   Op => S_IR_F(15 downto 8), ---
-       Byte_r => S_Byte_r);
+	   Op => S_IR_F(31 downto 24), ---
+	   trg => clk,
+       Byte_r => S_Byte_r,
+       Set_r => S_Set_r,
+       Set_or_r => S_Set_or_r,
+       Obyte_r => S_obyte_r,
+       Nany_r => S_nany_r);
 		 
 	controller1 : controller port map(
 	   clk => clk, 
 	   rst => rst,
 	   Byte_r => S_Byte_r,
-       nez_in => S_IR_F(7 downto 0), ----
+	   Set_r => S_Set_r,
+	   Set_or_r => S_Set_or_r,
+	   Obyte_r => S_obyte_r,
+	   Nany_r => S_nany_r,
+	   instruction => S_IR_F,
 	   text_in => S_text_in,
 	   IRlat => S_IRlat,
 	   SPlat => S_SPlat,

@@ -10,8 +10,8 @@ entity MEMORY_8 is
 end MEMORY_8;
 
 architecture RTL of MEMORY_8 is
-  type ram_type is array (3 downto 0) of std_logic_vector (7 downto 0); 
-    signal RAM : ram_type := ("00000000", "00011000", "00011000", "00001001"); 
+  type ram_type is array (5 downto 0) of std_logic_vector (7 downto 0); 
+    signal RAM : ram_type := ("00000110","00000101","00000100", "00000011", "00000010", "00000001"); 
     signal ADDR_REG : std_logic_vector(31 downto 0) ; 
 begin
 	

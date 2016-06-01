@@ -50,13 +50,13 @@ architecture Behavioral of PIPELINE is
 	--- MEMORY
 	signal data : std_logic_vector(31 downto 0);
 	
-	signal rst, fail : std_logic;
+	signal rst, fail : std_logic := '0';
 	
 	signal read_stk, write_stk : std_logic;
 	signal addr_stk : std_logic_vector(15 downto 0);
 	signal mem_d_stk_in : std_logic_vector(31 downto 0);
 
-    --signal match : std_logic;
+    signal match_reg : std_logic;
 
 begin
 	
@@ -78,6 +78,8 @@ begin
 	   addr_16 => addr_16, 
 	   addr => addr, 
 	   mem_d_out => mem_d_out);
+	   
+	--match <= '1';
 	  
 	
 	MEMORY1 : MEMORY port map(
@@ -110,7 +112,7 @@ begin
 				rst <= '0';
 			end if;
 		end if;
-	end process;
+	end process;  
 			
 end Behavioral;
 
