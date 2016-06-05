@@ -108,7 +108,7 @@ begin
 	   clk => clk,
 	   lat => S_IRlat,
 	   rst => '0',
-	   a => S_IR_D,
+	   a => mem_d_in,
 	   f => S_IR_F);
 	 
 	PR : rw_counter_16 port map(
@@ -153,8 +153,10 @@ begin
 	   Set_or_r => S_Set_or_r,
 	   Obyte_r => S_obyte_r,
 	   Nany_r => S_nany_r,
-	   instruction => S_IR_F,
-	   text_in => S_text_in,
+	   --instruction => S_IR_F,
+	   instruction => mem_d_in,
+	   text_in => mem_d_8_in,
+	   --text_in => S_text_in,
 	   IRlat => S_IRlat,
 	   SPlat => S_SPlat,
 	   s_inc_sp => S_s_inc_sp,

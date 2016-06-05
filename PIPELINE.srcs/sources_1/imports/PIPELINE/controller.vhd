@@ -19,14 +19,15 @@ architecture Behavioral of controller is
 	---START
 	signal S_START_rst, S_START : std_logic;
 	
-	---F1,F2,F3,Dec 
+	---F1,Dec 
 	signal S_F1_D, S_f1 : std_logic;
+	signal S_F2_D, S_f2 : std_logic;
 	signal S_Dec_D, S_dec : std_logic;
 	signal S_Fail_D, S_fail_cond : std_logic;
-	signal S_Ex_D, S_ex : std_logic;
+	signal S_wait_text_D, S_wait_text, S_s_wait_text : std_logic;
 	
 	component ctl_sig  port(
-	   f1 , dec, fail : in std_logic;
+	   f1 , dec, fail, wait_text : in std_logic;
 	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, IRlat, read, write, read_stk, write_stk : out std_logic);
 	end component;
 	
@@ -43,6 +44,7 @@ architecture Behavioral of controller is
 	---ctl_sig
 	signal S_s_inc_sp, S_SPlat, S_get_sp, S_s_inc, S_PRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk:  std_logic;
 	
+	signal test : std_logic;
 
 begin
 
@@ -59,13 +61,27 @@ begin
 	   lat => '1',
 	   rst =>rst,
 	   Q => S_f1);
-		 
-	Dec : reg_pos_et_d_ff port map(
+	
+	F2 : reg_pos_et_d_ff port map(
+          clk => clk,
+          D => S_F2_D,
+          lat => '1',
+          rst =>rst,
+          Q => S_f2);
+	
+	Dec_Ex : reg_pos_et_d_ff port map(
 	   clk => clk,
 	   D => S_Dec_D,
 	   lat => '1',
 	   rst =>rst,
 	   Q => S_dec);
+	   
+	Wait_text : reg_pos_et_d_ff port map(
+       clk => clk,
+       D => S_wait_text_D,
+       lat => '1',
+       rst =>rst,
+       Q => S_wait_text);    
 		 
 	Fail : reg_pos_et_d_ff port map(
 	   clk => clk,
@@ -78,6 +94,7 @@ begin
 	   f1 => S_f1,
 	   dec => S_dec,
 	   fail => S_fail_cond,
+	   wait_text => S_s_wait_text,
 	   s_inc => S_s_inc,
 	   s_inc_sp => S_s_inc_sp,
 	   SPlat => S_SPlat,
@@ -94,11 +111,15 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_D <= S_START or (S_dec and S_s_match);
+	S_F1_D <= S_START or (S_dec and (S_s_match));
+	
+	--S_F2_D <= S_f1;
+	
+	
 	------------Dec-
 	S_Dec_D <= S_f1;
-	------------Ex
-	S_Ex_D <= S_dec;
+	------------Wait text
+	S_wait_text_D <= S_s_wait_text;
 	
 	
 	--match_sig <= S_s_match and S_dec;
@@ -127,6 +148,8 @@ begin
 	
 	
 	--S_Byte <= ((S_dec and S_s_match) or S_fail_cond) and  Byte_r;
+	
+	--test <= '1' when ((Byte_r = '1' and S_dec = '1') and text_in = instruction(7 downto 0)) else '0';
 
 
 	s_inc <= S_s_inc;
@@ -137,8 +160,8 @@ begin
 	SPlat <= S_SPlat;
 	s_inc_sp <= S_s_inc_sp;
 	get_sp <= S_get_sp;
-	S_match <= S_s_match and S_dec;
-	--S_match <= S_dec;
+	S_match <= S_s_match;
+	--S_match <= test;
 	S_fail <= S_s_fail;
 	read_stk <= S_read_stk;
 	write_stk <= S_write_stk;

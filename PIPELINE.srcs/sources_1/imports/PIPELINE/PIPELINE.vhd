@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity PIPELINE is
     port(clk: in std_logic;
@@ -21,13 +22,13 @@ architecture Behavioral of PIPELINE is
 	end component;
 	
 	component MEMORY port(
-	   read, write : in std_logic;
+	   read, write, rst : in std_logic;
 	   addr : in std_logic_vector(31 downto 0);
 	   data : inout std_logic_vector(31 downto 0));
 	end component;
 	
 	component MEMORY_8 port(
-	   read, write : in std_logic;
+	   read, write, rst : in std_logic;
 	   addr : in std_logic_vector(31 downto 0);
 	   data : inout std_logic_vector(7 downto 0));
 	end component;
@@ -58,10 +59,15 @@ architecture Behavioral of PIPELINE is
 
     signal match_reg : std_logic;
 
+    signal test : std_logic_vector(27 downto 0) := (others => '0');
+    signal bus_clk : std_logic;
+    
+    signal count : integer := 0;
+
 begin
 	
 	VM1 : VM port map(
-	   clk => clk, 
+	   clk => bus_clk, 
 	   rst => rst, 
 	   mem_d_in => mem_d_in,
 	   mem_d_8_in => mem_d_8_in, 
@@ -85,12 +91,14 @@ begin
 	MEMORY1 : MEMORY port map(
 	   read => read, 
 	   write => write, 
+	   rst => rst,
 	   addr => addr, 
 	   data => mem_d_in);
 	   
 	MEMORY2 : MEMORY_8 port map(
 	   read => read, 
-	   write => write_8, 
+	   write => write_8,
+	   rst => rst, 
 	   addr => addr_8, 
 	   data => mem_d_8_in);
 	   
@@ -100,12 +108,20 @@ begin
 	   addr => addr_16, 
 	   data => mem_d_stk_in);
 	
-
 	process(clk)
-		variable count : integer := 0;
 	begin
-		if(clk'event and clk = '1') then
-			count := count + 1;
+	   if(clk'event and clk = '1') then
+	       test <= test + '1';
+	   end if;
+    end process;
+	
+	bus_clk <= test(25);
+
+	process(bus_clk)
+		--variable count : integer := 0;
+	begin
+		if(bus_clk'event and bus_clk = '1') then
+			count <= count + 1;
 			if(count = 3) then	
 				rst <= '1';
 			else

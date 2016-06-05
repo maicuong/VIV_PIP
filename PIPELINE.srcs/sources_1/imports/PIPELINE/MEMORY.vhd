@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity MEMORY is
-		port (read, write : in std_logic;
+		port (read, write, rst : in std_logic;
 				addr : in std_logic_vector(31 downto 0);
 				data : inout std_logic_vector(31 downto 0));
 end MEMORY;
@@ -24,14 +24,23 @@ architecture RTL of MEMORY is
     signal ADDR_REG : std_logic_vector(31 downto 0) ; 
 begin
 	
-	process(read, write)
+	process(read, write, rst)
 	begin
 		if(read = '1') then
 			data <= RAM(CONV_INTEGER(addr));
 		elsif(write = '1') then
 			RAM(CONV_INTEGER(addr)) <= data;
-		else
-			data <= (others => '0');
+		elsif(rst = '1') then
+        RAM(5) <=  "00000000000000000000001000000000";
+        RAM(4) <=  "00000100000000000000001000000000"; --Nany
+                 --1@@@@@@@ 1@@@@@@@  1@@@@@@@ 1@@@@@@@ 
+        RAM(3) <= "00000011000000000000001000000100"; --Obyte '4'
+        RAM(2) <= "10000010000000010000001000000011"; --Set_or [23]
+                 --1@@@@@@@ 1@@@@@@@  1@@@@@@@ 1@@@@@@@
+        RAM(1) <= "00000010000000100000000100000111"; --Set [1-7]
+        RAM(0) <= "00000001000000000000000100000001"; --Byte '1'		  
+		--else
+			--data <= (others => '0');
 		end if;
 	end process;
 	

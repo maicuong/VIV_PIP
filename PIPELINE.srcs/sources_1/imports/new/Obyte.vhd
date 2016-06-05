@@ -14,7 +14,7 @@ architecture Behavioral of Obyte is
 
 begin
 
-	MATCH <= '1' when (TRG = '1') else '0';
+	MATCH <= TRG;
 	NEXT_TEXT  <= '1' when (TRG = '1' and TEXT_IN = NEZ_IN) else '0';
 	
 end Behavioral;

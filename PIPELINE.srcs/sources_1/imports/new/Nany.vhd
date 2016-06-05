@@ -13,7 +13,7 @@ architecture Behavioral of Nany is
 
 begin
 
-	MATCH <= '1' when (TRG = '1') else '0';
+	MATCH <= TRG;
 	FAIL  <= '0';
 	
 end Behavioral;

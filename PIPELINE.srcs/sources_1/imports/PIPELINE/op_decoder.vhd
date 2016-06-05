@@ -15,48 +15,50 @@ architecture Behavioral of op_decoder is
 
 begin
 
-	process(Op,trg)
+	process(Op)
 	begin
-	   --if(trg'event and trg = '1') then
 		if(Op = "00000001") then
 			Byte_r <= '1';
-			Set_r <= '0';
-			Set_or_r <= '0';
-			Obyte_r <= '0';
-			Nany_r <= '0';
-	    elsif(Op = "00000010") then
-			Byte_r <= '0';
-            Set_r <= '1';
-            Set_or_r <= '0';
-            Obyte_r <= '0';
-            Nany_r <= '0';
-	    elsif(Op = "10000010") then
-            Byte_r <= '0';
-            Set_r <= '0';
-            Set_or_r <= '1';
-            Obyte_r <= '0';
-            Nany_r <= '0';
-	    elsif(Op = "00000011") then
-            Byte_r <= '0';
-            Set_r <= '0';
-            Set_or_r <= '0';
-            Obyte_r <= '1';
-            Nany_r <= '0';
-	    elsif(Op = "00000100") then
-            Byte_r <= '0';
-            Set_r <= '0';
-            Set_or_r <= '0';
-            Obyte_r <= '0';
-            Nany_r <= '1';
 		else
             Byte_r <= '0';
-            Set_r <= '0';
-            Set_or_r <= '0';
-            Obyte_r <= '0';
-            Nany_r <= '0';
 		end if;
-	   --end if;
 	end process;
+	
+    process(Op)
+    begin
+        if(Op = "00000010") then
+            Set_r <= '1';
+        else
+            Set_r <= '0';
+        end if;
+    end process;
+    
+    process(Op)
+    begin
+        if(Op = "10000010") then
+            Set_or_r <= '1';
+        else
+            Set_or_r <= '0';
+        end if;
+    end process;
+    
+    process(Op)
+    begin
+        if(Op = "00000011") then
+            Obyte_r <= '1';
+        else
+            Obyte_r <= '0';
+        end if;
+    end process;
+    
+    process(Op)
+    begin
+        if(Op = "00000100") then
+            Nany_r <= '1';
+        else
+            Nany_r <= '0';
+        end if;
+    end process;
 
 end Behavioral;
 

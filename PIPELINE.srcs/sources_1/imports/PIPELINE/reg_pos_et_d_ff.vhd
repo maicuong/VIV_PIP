@@ -30,16 +30,16 @@ begin
     begin
         if(clk'event and clk = '1') then
             if(rst = '1') then
-                Q_reg <= '0';
+                Q <= '0';
             elsif(lat = '1') then
-                Q_reg <= D;
-            --else
-                --Q <= '0';
+                Q <= D;
+            ----else
+                ----Q <= '0';
             end if;
         end if;
      end process;
      
-     Q <= Q_reg;
+     --Q <= Q_reg;
 
 end Behavioral;
 

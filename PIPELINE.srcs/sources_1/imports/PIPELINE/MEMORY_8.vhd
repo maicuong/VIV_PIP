@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity MEMORY_8 is
-		port (read, write : in std_logic;
+		port (read, write, rst : in std_logic;
 				addr : in std_logic_vector(31 downto 0);
 				data : inout std_logic_vector(7 downto 0));
 end MEMORY_8;
@@ -21,6 +21,13 @@ begin
 			data <= RAM(CONV_INTEGER(addr));
 		elsif(write = '1') then
 			RAM(CONV_INTEGER(addr)) <= data;
+	    elsif(rst = '1') then
+	       RAM(5) <= "00000110";
+	       RAM(4) <= "00000101";
+	       RAM(3) <= "00000100";
+	       RAM(2) <= "00000011";
+	       RAM(1) <= "00000010";
+	       RAM(0) <= "00000001";
 		--else
 			--data <= (others => '0');
 		end if;

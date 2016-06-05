@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1, dec, fail : in std_logic;
+	   f1, dec, fail, wait_text : in std_logic;
 	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, IRlat, read, write, read_stk, write_stk : out std_logic);
 end ctl_sig;
 
@@ -42,8 +42,8 @@ begin
 	
 
 	---read
-	process(f1) begin
-		if(f1 = '1') then	
+	process(f1, wait_text) begin
+		if(f1 = '1' or wait_text = '1') then	
 			read <= '1';
 		else
 			read <= '0';
