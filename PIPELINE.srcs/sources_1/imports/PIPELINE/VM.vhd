@@ -63,20 +63,21 @@ architecture Behavioral of VM is
 	   Set_r : out std_logic;
        Set_or_r : out std_logic;
        Obyte_r : out std_logic;
-       Nany_r : out std_logic);
+       Nany_r : out std_logic;
+       Rset_r : out std_logic);
 	end component;
 	
 	---Byte
-	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r : std_logic; 
+	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r, S_Rset_r : std_logic; 
 	
 	component controller port(
-	   clk, rst, Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r  : in std_logic;
+	   clk, rst, Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   --S_s_dec : out std_logic;
 	   IRlat, SPlat, s_inc_sp, get_sp,   
-	   s_inc,
-	   PRlat, read, write, read_stk, write_stk, S_fail, S_match: out std_logic);
+	   s_inc, next_text,
+	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
@@ -96,6 +97,7 @@ architecture Behavioral of VM is
 	signal S_SPlat, S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
 	signal S_SP_F, S_SP_D : std_logic_vector(15 downto 0);
 	
+	signal S_read_8, S_write_8 : std_logic;
 	signal S_read_stk, S_write_stk : std_logic;
 	
 	signal S_dec : std_logic;
@@ -120,11 +122,12 @@ begin
 	   f => S_PR_F);
 		 
 	TR : rw_counter_16 port map (
-	   lat => S_PRlat,
+	   --lat => S_TRlat,
+	   lat => S_s_t_inc,
 	   clk => clk,
 	   rst => rst,
-	   s_inc => S_s_inc,
-	   d => (others => '0'),
+	   s_inc => S_s_t_inc,
+	   d => S_BUS_C,
 	   f => S_TR_F);
 		 
 	SP : sp_reg port map (
@@ -143,7 +146,8 @@ begin
        Set_r => S_Set_r,
        Set_or_r => S_Set_or_r,
        Obyte_r => S_obyte_r,
-       Nany_r => S_nany_r);
+       Nany_r => S_nany_r,
+       Rset_r => S_rset_r);
 		 
 	controller1 : controller port map(
 	   clk => clk, 
@@ -153,6 +157,7 @@ begin
 	   Set_or_r => S_Set_or_r,
 	   Obyte_r => S_obyte_r,
 	   Nany_r => S_nany_r,
+	   Rset_r => S_rset_r,
 	   --instruction => S_IR_F,
 	   instruction => mem_d_in,
 	   text_in => mem_d_8_in,
@@ -160,13 +165,17 @@ begin
 	   IRlat => S_IRlat,
 	   SPlat => S_SPlat,
 	   s_inc_sp => S_s_inc_sp,
+	   next_text => S_s_t_inc,
 	   get_sp => S_get_sp,
 	   s_inc => S_s_inc,
 	   PRlat => S_PRlat,
+	   TRlat => S_TRlat,
        S_fail => S_fail,------------
 	   S_match => S_match,----------
 	   read => S_read,
 	   write => S_write,
+	   read_8 => S_read_8,
+	   write_8 => S_write_8,
 	   read_stk => S_read_stk,
        write_stk => S_write_stk);
 
@@ -179,6 +188,9 @@ begin
 	read <= S_read;
 	write <= S_write;
 	addr <= S_PR_F;
+	--read_8 <= S_read_8;
+	read_8 <= S_s_t_inc;
+	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
 	addr_16 <= S_SP_F;
 	mem_d_out <= S_IR_F;

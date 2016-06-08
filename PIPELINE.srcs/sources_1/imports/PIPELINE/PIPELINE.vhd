@@ -96,7 +96,7 @@ begin
 	   data => mem_d_in);
 	   
 	MEMORY2 : MEMORY_8 port map(
-	   read => read, 
+	   read => read_8, 
 	   write => write_8,
 	   rst => rst, 
 	   addr => addr_8, 

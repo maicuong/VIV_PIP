@@ -8,7 +8,8 @@ entity op_decoder is
 		 Set_r : out std_logic;
 		 Set_or_r : out std_logic;
 		 Obyte_r : out std_logic;
-		 Nany_r : out std_logic);
+		 Nany_r : out std_logic;
+		 Rset_r : out std_logic);
 end op_decoder;
 
 architecture Behavioral of op_decoder is
@@ -57,6 +58,15 @@ begin
             Nany_r <= '1';
         else
             Nany_r <= '0';
+        end if;
+    end process;
+
+    process(Op)
+    begin
+        if(Op = "00000101") then
+            Rset_r <= '1';
+        else
+            Rset_r <= '0';
         end if;
     end process;
 

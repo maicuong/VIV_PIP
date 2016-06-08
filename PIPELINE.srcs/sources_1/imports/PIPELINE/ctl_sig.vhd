@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity ctl_sig is
 	port(
 	   f1, dec, fail, wait_text : in std_logic;
-	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, IRlat, read, write, read_stk, write_stk : out std_logic);
+	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -30,6 +30,15 @@ begin
 		end if;
 	end process;
 	
+	---TRlatch
+        process(f1, fail, wait_text) begin
+        if(f1 = '1' or fail = '1' or wait_text = '1') then    
+            TRlat <= '1';
+        else
+            TRlat <= '0';
+        end if;
+    end process;
+	
 
 	---IRlat
 	process(f1) begin
@@ -44,6 +53,14 @@ begin
 	---read
 	process(f1, wait_text) begin
 		if(f1 = '1' or wait_text = '1') then	
+			read_8 <= '1';
+		else
+			read_8 <= '0';
+		end if;
+	end process;
+
+	process(f1) begin
+		if(f1 = '1') then	
 			read <= '1';
 		else
 			read <= '0';
@@ -51,6 +68,7 @@ begin
 	end process;
 	
 	write <= '0';
+	write_8 <= '0';
 	
 	---SPlat
     process(fail) begin
