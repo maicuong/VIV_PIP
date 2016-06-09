@@ -61,8 +61,10 @@ begin
 	    end if;
 	end process;
 	
-	f <= inc_f when S_s_inc = '1' else
-		 dcr_f when S_s_dcr = '1'
-		 else (others => '0');
+	--f <= inc_f when S_s_inc = '1' else
+		 --dcr_f when S_s_dcr = '1';
+		 --else (others => '0');
+		 
+    f <= inc_f;
 		
 end Behavioral;

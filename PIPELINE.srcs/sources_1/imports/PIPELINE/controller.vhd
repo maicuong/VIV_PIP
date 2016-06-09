@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity controller is
 	port(
-	   clk, rst, Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r  : in std_logic;
+	   clk, rst, Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r, Call_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   s_inc, next_text, SPlat, s_inc_sp, get_sp, PRlat, TRlat, IRlat, read, write , 
@@ -29,18 +29,18 @@ architecture Behavioral of controller is
 	signal S_next_text_D, S_next_text : std_logic;
 	
 	component ctl_sig  port(
-	   f1 , dec, fail, wait_text : in std_logic;
+	   f1 , dec, fail, wait_text, Call : in std_logic;
 	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r : in  std_logic;
+      Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r, Call_r : in  std_logic;
             instruction : in std_logic_vector(31 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Next_text, Next_ist, Fail, Wait_text : out std_logic);
     end component;
     
-    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset : std_logic;
+    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text : std_logic;
 	
@@ -106,6 +106,7 @@ begin
 	   dec => S_dec,
 	   fail => S_fail_cond,
 	   wait_text => S_wait_text,
+	   Call => S_Call,
 	   s_inc => S_s_inc,
 	   s_inc_sp => S_s_inc_sp,
 	   SPlat => S_SPlat,
@@ -143,6 +144,7 @@ begin
 	--fail_sig <= S_s_fail and S_dec;
 	------------Fail
 	--S_Fail_D <= fail_sig;
+	S_Fail_D <= S_s_fail;
 	
 	
 	S_Byte <=  Byte_r and S_dec;
@@ -150,7 +152,8 @@ begin
 	S_Set_or <= Set_or_r and S_dec;
 	S_Obyte <= Obyte_r and S_dec;
 	S_Nany <= Nany_r and S_dec;
-	S_Rset <= Rset_r and ( S_dec); 
+	S_Rset <= Rset_r and S_dec; 
+	S_Call <= Call_r and S_dec;
 	
 	Ex1 : Ex port map(
       Byte_r => S_Byte, 
@@ -159,6 +162,7 @@ begin
       Obyte_r => S_Obyte,
       Nany_r => S_Nany,
       Rset_r => S_Rset,
+      Call_r => S_Call,
       instruction => instruction,
       text_in => text_in,
       Next_ist => S_next_ist,

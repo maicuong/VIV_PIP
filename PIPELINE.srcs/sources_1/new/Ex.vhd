@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity Ex is
-  Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r : in  std_logic;
+  Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r, Call_r : in  std_logic;
         instruction : in std_logic_vector(31 downto 0);
         text_in : in std_logic_vector(7 downto 0);
         Next_text, Next_ist, Fail, Wait_text : out std_logic);
@@ -145,7 +145,7 @@ begin
 		NEXT_IST => S_rset_next_ist,
 		NEXT_TEXT => S_rset_next_text);
 
-    Next_ist <= S_byte_match or S_set_match or S_set_or_match or S_obyte_match or S_nany_match or S_rset_next_ist;
+    Next_ist <= S_byte_match or S_set_match or S_set_or_match or S_obyte_match or S_nany_match or S_rset_next_ist or Call_r;
     Fail <= S_byte_fail or S_set_fail or S_set_or_fail;
     Wait_text <= S_rset_next_text;
     Next_text <= S_byte_match or S_set_match or S_set_or_match or S_obyte_next_text or S_rset_next_text;

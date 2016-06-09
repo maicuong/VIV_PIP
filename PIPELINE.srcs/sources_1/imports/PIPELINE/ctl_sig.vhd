@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1, dec, fail, wait_text : in std_logic;
+	   f1, dec, fail, wait_text, Call : in std_logic;
 	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 end ctl_sig;
 
@@ -22,8 +22,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1, fail) begin
-		if(f1 = '1' or fail = '1') then	
+		process(f1, fail, Call) begin
+		if(f1 = '1' or fail = '1' or Call = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';
@@ -71,8 +71,8 @@ begin
 	write_8 <= '0';
 	
 	---SPlat
-    process(fail) begin
-        if(fail = '1') then    
+    process(fail, Call) begin
+        if(fail = '1' or Call = '1') then    
             SPlat <= '1';
         else
             SPlat <= '0';
@@ -80,8 +80,8 @@ begin
     end process;
     
     ---s_inc_sp
-    process(fail) begin
-        if(fail = '1') then    
+    process(Call) begin
+        if(Call = '1') then    
             s_inc_sp <= '1';
         else
             s_inc_sp <= '0';
@@ -106,7 +106,15 @@ begin
         end if;
     end process;
     
-    write_stk <= '0';
+    ---write_stk
+    process(Call)
+    begin
+    if(Call = '1') then    
+        write_stk <= '1';
+    else
+        write_stk <= '0';
+    end if;
+end process;
 
 
 end Behavioral;

@@ -13,7 +13,7 @@ architecture Behavioral of PIPELINE is
 	   clk,rst : in std_logic;
 	   mem_d_in : in std_logic_vector(31 downto 0);
 	   mem_d_8_in : in std_logic_vector(7 downto 0);
-	   mem_d_stk_in : in std_logic_vector(31 downto 0);
+	   mem_d_stk_in : inout std_logic_vector(31 downto 0);
 	   read, read_8, read_stk,  write, write_8, write_stk : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
@@ -34,9 +34,10 @@ architecture Behavioral of PIPELINE is
 	end component;
 	
 	component MEMORY_STK port(
-	   read, write : in std_logic;
+	   read, write, rst : in std_logic;
 	   addr : in std_logic_vector(15 downto 0);
-       data : inout std_logic_vector(31 downto 0));
+       data_in : in std_logic_vector(31 downto 0);
+       data_out : out std_logic_vector(31 downto 0));
     end component;
 
 	signal mem_d_in : std_logic_vector(31 downto 0);
@@ -55,7 +56,7 @@ architecture Behavioral of PIPELINE is
 	
 	signal read_stk, write_stk : std_logic;
 	signal addr_stk : std_logic_vector(15 downto 0);
-	signal mem_d_stk_in : std_logic_vector(31 downto 0);
+	signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
 
     signal match_reg : std_logic;
 
@@ -104,9 +105,11 @@ begin
 	   
 	MEMORY3 : MEMORY_STK port map(
 	   read => read_stk, 
-	   write => write_stk, 
+	   write => write_stk,
+	   rst => rst, 
 	   addr => addr_16, 
-	   data => mem_d_stk_in);
+	   data_in => mem_d_stk_in,
+	   data_out => mem_d_stk_out);
 	
 	process(clk)
 	begin
