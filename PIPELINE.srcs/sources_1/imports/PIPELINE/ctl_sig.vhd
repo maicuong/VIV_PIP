@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1, dec, fail, wait_text, Call : in std_logic;
+	   f1, dec, fail, wait_text , Call: in std_logic;
 	   s_inc, s_inc_sp, SPlat, get_sp, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 end ctl_sig;
 
@@ -97,7 +97,7 @@ begin
         end if;
     end process;
     
-    ---read_stk
+    --read_stk
     process(fail) begin
         if(fail = '1') then    
             read_stk <= '1';
@@ -106,7 +106,9 @@ begin
         end if;
     end process;
     
-    ---write_stk
+    --write_stk <= '0';
+    
+    --write_stk
     process(Call)
     begin
     if(Call = '1') then    
@@ -114,7 +116,7 @@ begin
     else
         write_stk <= '0';
     end if;
-end process;
+    end process;
 
 
 end Behavioral;

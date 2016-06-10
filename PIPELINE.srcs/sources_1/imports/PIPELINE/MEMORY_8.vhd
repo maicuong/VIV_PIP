@@ -10,7 +10,7 @@ entity MEMORY_8 is
 end MEMORY_8;
 
 architecture RTL of MEMORY_8 is
-  type ram_type is array (11 downto 0) of std_logic_vector (7 downto 0); 
+  type ram_type is array (10 downto 0) of std_logic_vector (7 downto 0); 
     signal RAM : ram_type ;--:= ("00000000",
                               --"00000010",
                               --"00000010",
@@ -32,9 +32,8 @@ begin
 		elsif(write = '1') then
 			RAM(CONV_INTEGER(addr)) <= data;
 	    elsif(rst = '1') then
-	       RAM(11) <= "00000000";
-	       RAM(10) <= "00000100";
-	       RAM(9) <= "00001000";
+	       RAM(10) <= "00000000";
+	       RAM(9) <= "00000101";
 	       RAM(8) <= "00000100";
 	       RAM(7) <= "00000011";
 	       RAM(6) <= "00000010";

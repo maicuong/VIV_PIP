@@ -34,7 +34,7 @@ architecture Behavioral of controller is
 	end component;
 	
 	component Ex 
-      Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r, Call_r : in  std_logic;
+      Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r : in  std_logic;
             instruction : in std_logic_vector(31 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Next_text, Next_ist, Fail, Wait_text : out std_logic);
@@ -126,7 +126,7 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_D <= S_START or (S_dec and (S_next_ist));
+	S_F1_D <= S_START or (S_dec and (S_next_ist or Call_r));
 	
 	--S_F2_D <= S_f1;
 	
@@ -144,7 +144,6 @@ begin
 	--fail_sig <= S_s_fail and S_dec;
 	------------Fail
 	--S_Fail_D <= fail_sig;
-	S_Fail_D <= S_s_fail;
 	
 	
 	S_Byte <=  Byte_r and S_dec;
@@ -152,7 +151,7 @@ begin
 	S_Set_or <= Set_or_r and S_dec;
 	S_Obyte <= Obyte_r and S_dec;
 	S_Nany <= Nany_r and S_dec;
-	S_Rset <= Rset_r and S_dec; 
+	S_Rset <= Rset_r and ( S_dec); 
 	S_Call <= Call_r and S_dec;
 	
 	Ex1 : Ex port map(
@@ -162,7 +161,7 @@ begin
       Obyte_r => S_Obyte,
       Nany_r => S_Nany,
       Rset_r => S_Rset,
-      Call_r => S_Call,
+      --Call_r => S_Call,
       instruction => instruction,
       text_in => text_in,
       Next_ist => S_next_ist,
@@ -189,7 +188,7 @@ begin
 	s_inc_sp <= S_s_inc_sp;
 	next_text <= S_next_text; ----------
 	get_sp <= S_get_sp;
-	S_match <= S_next_ist;
+	S_match <= S_next_ist or S_Call;
 	--S_match <= test;
 	S_fail <= S_s_fail;
 	read_stk <= S_read_stk;
@@ -199,4 +198,3 @@ begin
 
 
 end Behavioral;
-
