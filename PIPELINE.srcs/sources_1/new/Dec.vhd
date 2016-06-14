@@ -34,9 +34,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity Dec is
   Port ( clk, trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
-        text_in : in std_logic_vector(7 downto 0);
-        Set_r, Byte_r, Set_or_r, Obyte_r : out std_logic;
-        nez_in, text_out : out std_logic_vector(7 downto 0) );
+        Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r : out std_logic);
 end Dec;
 
 architecture Behavioral of Dec is
@@ -52,8 +50,6 @@ begin
             else
                 Set_r <= '0';
             end if;
-            nez_in <= instruction(7 downto 0);
-            text_out <= text_in;
         else 
             Set_r <= '0';
          end if;
@@ -101,6 +97,21 @@ process(clk)
               end if;
           else 
               Obyte_r <= '0';
+           end if;
+       end if;
+   end process;
+
+process(clk)
+  begin
+      if(clk'event and clk = '1') then
+          if (trg = '1') then
+              if(instruction(31 downto 24) = "00000100") then
+                  Rset_r <= '1';
+              else
+                  Rset_r <= '0';
+              end if;
+          else 
+              Rset_r <= '0';
            end if;
        end if;
    end process;

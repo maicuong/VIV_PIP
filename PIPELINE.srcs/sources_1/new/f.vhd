@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity f is
    port(
-        clk, trg : in std_logic;
+        clk, next_ist, next_text : in std_logic;
 instruction : in std_logic_vector(31 downto 0);
 text_in : in std_logic_vector(7 downto 0);
 nez_in : out std_logic_vector(15 downto 0); 
@@ -48,9 +48,8 @@ begin
     process(clk)
     begin
         if(clk'event and clk = '1') then
-            if(trg = '1') then
+            if(next_ist = '1') then
                 nez_in <= instruction(15 downto 0);
-                text_out <= text_in;
                 f_out <= '1';
             else
                 f_out <= '0';
@@ -58,5 +57,13 @@ begin
          end if;
      end process;
 
+    process(clk)
+    begin
+        if(clk'event and clk = '1') then
+            if(next_text = '1') then
+                text_out <= text_in;
+            end if;
+         end if;
+     end process;
 
 end Behavioral;
