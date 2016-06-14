@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1: in std_logic;
+	   f1, Call_r: in std_logic;
 	   s_inc,  PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
 end ctl_sig;
 
@@ -20,8 +20,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1) begin
-		if(f1 = '1') then	
+		process(f1, Call_r) begin
+		if(f1 = '1'or Call_r = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';

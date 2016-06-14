@@ -30,12 +30,12 @@ architecture Behavioral of controller is
 	signal S_next_text_D, S_next_text : std_logic;
 	
 	component ctl_sig  port(
-	   f1 : in std_logic;
+	   f1, Call_r : in std_logic;
 	   s_inc, PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r : in  std_logic;
+      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -63,7 +63,7 @@ architecture Behavioral of controller is
         clk : in std_logic;
         trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
-        Set_r, Set_or_r, Obyte_r, Rset_r : out std_logic;
+        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r : out std_logic;
         Byte_r : out std_logic);
     end component;
     
@@ -97,7 +97,8 @@ begin
         next_trg => S_next_text); 
 		 
 	ctl_sig1 : ctl_sig port map(
-	   f1 => S_f1,
+	   f1 => S_F1_next_ist_D,
+	   Call_r => S_Call,
 	   s_inc => S_s_inc,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
@@ -112,7 +113,7 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_next_ist_D <= S_START or (S_next_ist);
+	S_F1_next_ist_D <= S_START or S_next_ist ;
 	S_F1_next_text_D <= S_START or S_s_next_text;
 	------------Dec-
 	S_Dec_D <= S_f1 or S_wait_text;	
@@ -140,7 +141,8 @@ begin
 	   Byte_r => S_Byte,
 	   Set_or_r => S_Set_or,
 	   Obyte_r => S_Obyte,
-	   Rset_r => S_rset);
+	   Rset_r => S_Rset,
+	   Call_r => S_Call);
 
 	
 	Ex1 : Ex port map(
@@ -150,6 +152,7 @@ begin
       Set_or_r => S_Set_or,
       Obyte_r => S_Obyte,
       Rset_r => S_rset,
+      Call_r => S_Call,
       instruction => nez_in_f,
       text_in => text_out_f,
       Wait_text => S_wait_text_D,

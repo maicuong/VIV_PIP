@@ -95,6 +95,8 @@ begin
 	   d => S_BUS_C,
 	   f => S_PR_F);
 		 
+    S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (S_PRlat = '1') else (others => '0'); 
+		 
 	TR : rw_counter_16 port map (
 	   --lat => S_TRlat,
 	   lat => S_s_t_inc,
