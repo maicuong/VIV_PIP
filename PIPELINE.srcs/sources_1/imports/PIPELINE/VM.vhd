@@ -39,6 +39,8 @@ architecture Behavioral of VM is
 	signal S_PRlat, S_s_inc : std_logic;
 	signal S_PR_F : std_logic_vector(31 downto 0);
 	
+	signal put_stk : std_logic;
+	
 	component op_decoder port(
        Op : in std_logic_vector(7 downto 0);
        trg : in std_logic;
@@ -53,7 +55,7 @@ architecture Behavioral of VM is
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   IRlat,   
-	   s_inc, next_text,
+	   s_inc, put_stk, next_text,
 	   PRlat, TRlat,  read, write, read_8, write_8, S_fail, S_match: out std_logic);
 	end component;
 	
@@ -82,7 +84,7 @@ begin
 
 	IR : reg_16 port map (
 	   clk => clk,
-	   lat => S_IRlat,
+	   lat => S_read,
 	   rst => '0',
 	   a => mem_d_in,
 	   f => S_IR_F);
@@ -94,6 +96,8 @@ begin
 	   s_inc => S_s_inc,
 	   d => S_BUS_C,
 	   f => S_PR_F);
+	   
+	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else (others => '0');
 		 
 	TR : rw_counter_16 port map (
 	   --lat => S_TRlat,
@@ -118,6 +122,7 @@ begin
 	   IRlat => S_IRlat,
 	   next_text => S_s_t_inc,
 	   s_inc => S_s_inc,
+	   put_stk => put_stk,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
        S_fail => S_fail,------------
