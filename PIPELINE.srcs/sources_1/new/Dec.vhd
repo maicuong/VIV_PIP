@@ -35,7 +35,7 @@ entity Dec is
   Port ( clk, trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
         text_in : in std_logic_vector(7 downto 0);
-        Set_r : out std_logic;
+        Set_r, Byte_r, Set_or_r, Obyte_r : out std_logic;
         nez_in, text_out : out std_logic_vector(7 downto 0) );
 end Dec;
 
@@ -59,5 +59,50 @@ begin
          end if;
      end if;
  end process;
+
+process(clk)
+begin
+    if(clk'event and clk = '1') then
+        if (trg = '1') then
+            if(instruction(31 downto 24) = "00000001") then
+                Byte_r <= '1';
+            else
+                Byte_r <= '0';
+            end if;
+        else 
+            Byte_r <= '0';
+         end if;
+     end if;
+ end process;
+ 
+ process(clk)
+ begin
+     if(clk'event and clk = '1') then
+         if (trg = '1') then
+             if(instruction(31 downto 24) = "10000010") then
+                 Set_or_r <= '1';
+             else
+                 Set_or_r <= '0';
+             end if;
+         else 
+             Set_or_r <= '0';
+          end if;
+      end if;
+  end process;
+  
+process(clk)
+  begin
+      if(clk'event and clk = '1') then
+          if (trg = '1') then
+              if(instruction(31 downto 24) = "00000011") then
+                  Obyte_r <= '1';
+              else
+                  Obyte_r <= '0';
+              end if;
+          else 
+              Obyte_r <= '0';
+           end if;
+       end if;
+   end process;
 
 end Behavioral;

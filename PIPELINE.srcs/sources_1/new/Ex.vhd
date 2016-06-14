@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity Ex is
-  Port (clk, Set_r : in  std_logic;
+  Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r : in  std_logic;
         instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
         Next_text, Next_ist, Fail: out std_logic);
@@ -42,6 +42,7 @@ architecture Behavioral of Ex is
 	---Byte
 component Byte
     port(
+    CLK : in std_logic;
     TRG : in std_logic;
     TEXT_IN : in std_logic_vector(7 downto 0);
     NEZ_IN : in std_logic_vector(7 downto 0) ;
@@ -61,6 +62,7 @@ end component;
 
 component Set_or
     port(
+    CLK : in std_logic;
     TRG : in std_logic;
     TEXT_IN : in std_logic_vector(7 downto 0);
     NEZ_IN : in std_logic_vector(15 downto 0) ;
@@ -70,6 +72,7 @@ end component;
 
 component Obyte
 	port(
+	    CLK : in std_logic;
 		TRG : in std_logic;
 		TEXT_IN : in std_logic_vector(7 downto 0);
 		NEZ_IN : in std_logic_vector(7 downto 0) ;
@@ -105,7 +108,13 @@ signal S_rset_next_ist, S_rset_next_text : std_logic;
 
 begin
 
-
+	Byte1 : Byte port map (
+	    CLK => clk,
+		TRG => Byte_r,
+		TEXT_IN => text_in,
+		NEZ_IN => instruction(7 downto 0),
+		FAIL => S_byte_fail,
+		MATCH => S_byte_match);
 		
 	Set1 : Set port map(
 	    CLK => clk,
@@ -114,9 +123,25 @@ begin
         NEZ_IN => instruction,
         FAIL => S_set_fail,
         MATCH => S_set_match);
+        
+	Set_or1 : Set_or port map(
+	        CLK => clk,
+            TRG => Set_or_r,
+            TEXT_IN => text_in,
+            NEZ_IN => instruction(15 downto 0),
+            FAIL => S_set_or_fail,
+            MATCH => S_set_or_match);
+            
+     Obyte1 : Obyte port map(
+            CLK => clk,
+            TRG => Obyte_r,
+            TEXT_IN => text_in,
+            NEZ_IN => instruction(7 downto 0),
+            NEXT_TEXT => S_obyte_next_text,
+            MATCH => S_obyte_match);
 
-    Next_ist <= S_set_match;
+    Next_ist <= S_set_match or S_byte_match or S_set_or_match or S_obyte_match;
     Fail <= S_set_fail;
-    Next_text <= S_set_match;
+    Next_text <= S_set_match or S_byte_match or S_set_or_match or S_obyte_next_text ;
 
 end Behavioral;

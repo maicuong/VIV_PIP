@@ -35,7 +35,7 @@ architecture Behavioral of controller is
 	end component;
 	
 	component Ex 
-      Port (clk,Set_r : in  std_logic;
+      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Next_text, Next_ist, Fail : out std_logic);
@@ -65,7 +65,8 @@ architecture Behavioral of controller is
         text_in : in std_logic_vector(7 downto 0);
         text_out, nez_in : out std_logic_vector(7 downto 0);
         instruction : in std_logic_vector(31 downto 0);
-        Set_r : out std_logic);
+        Set_r, Set_or_r, Obyte_r : out std_logic;
+        Byte_r : out std_logic);
     end component;
     
     signal S_START1 : std_logic;
@@ -196,12 +197,18 @@ begin
 	   instruction => instruction,
 	   text_out => text_out,
 	   nez_in => nez_in,
-	   Set_r => S_Set);
+	   Set_r => S_Set,
+	   Byte_r => S_Byte,
+	   Set_or_r => S_Set_or,
+	   Obyte_r => S_Obyte);
 
 	
 	Ex1 : Ex port map(
 	  clk => clk,
       Set_r => S_Set,
+      Byte_r => S_Byte,
+      Set_or_r => S_Set_or,
+      Obyte_r => S_Obyte,
       instruction => nez_in_f,
       text_in => text_out_f,
       Next_ist => S_next_ist,
