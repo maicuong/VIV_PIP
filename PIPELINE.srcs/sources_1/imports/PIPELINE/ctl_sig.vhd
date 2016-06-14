@@ -3,8 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1, Call_r: in std_logic;
-	   s_inc, s_inc_sp, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write, read_stk, write_stk, read_8, write_8 : out std_logic);
+	   f1: in std_logic;
+	   s_inc,  PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -19,37 +19,9 @@ begin
 		end if;
 	end process;
 	
----SPlat
-        process(Call_r) begin
-            if(Call_r = '1') then    
-                SPlat <= '1';
-            else
-                SPlat <= '0';
-            end if;
-        end process;
-        
-        ---s_inc_sp
-        process(Call_r) begin
-            if(Call_r = '1') then    
-                s_inc_sp <= '1';
-            else
-                s_inc_sp <= '0';
-            end if;
-        end process;
-	
-    --write_stk
-        process(Call_r)
-        begin
-        if(Call_r = '1') then    
-            write_stk <= '1';
-        else
-            write_stk <= '0';
-        end if;
-        end process;
-	
 	---PRlatch
-		process(f1, Call_r) begin
-		if(f1 = '1'or Call_r = '1') then	
+		process(f1) begin
+		if(f1 = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';

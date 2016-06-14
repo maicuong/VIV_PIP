@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity Ex is
-  Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
+ Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r : in  std_logic;
         instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
         Wait_text, Next_text, Next_ist, Fail: out std_logic);
@@ -106,7 +106,6 @@ signal S_set_or_match, S_set_or_fail : std_logic;
 signal S_obyte_match, S_obyte_next_text : std_logic;
 signal S_nany_match, S_nany_fail : std_logic;
 signal S_rset_next_ist, S_rset_next_text : std_logic;
-signal S_Call : std_logic;
 
 begin
 
@@ -141,7 +140,7 @@ begin
             NEZ_IN => instruction(7 downto 0),
             NEXT_TEXT => S_obyte_next_text,
             MATCH => S_obyte_match);
-            
+
 	Rset1 : Rset port map(
 	       CLK => clk,
            TRG => Rset_r,
@@ -150,20 +149,9 @@ begin
            NEXT_IST => S_rset_next_ist,
            NEXT_TEXT => S_rset_next_text);
 
-    process(clk)
-    begin
-        if(clk'event and clk = '1') then
-            if(Call_r = '1') then
-                S_Call <= '1';
-             else
-                S_Call <= '0';
-             end if;
-         end if;
-    end process;
-
-    Next_ist <= S_set_match or S_byte_match or S_set_or_match or S_obyte_match or S_rset_next_ist or S_Call;
+    Next_ist <= S_set_match or S_byte_match or S_set_or_match or S_obyte_match or S_rset_next_ist;
     Fail <= S_set_fail;
-    Wait_text <= S_rset_next_text;
-    Next_text <= S_set_match or S_byte_match or S_set_or_match or S_obyte_next_text or S_rset_next_text;
+   Wait_text <= S_rset_next_text;
+     Next_text <= S_set_match or S_byte_match or S_set_or_match or S_obyte_next_text or S_rset_next_text;
 
 end Behavioral;

@@ -6,8 +6,8 @@ entity controller is
 	   clk, rst, Set_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
-	   s_inc, next_text, s_inc_sp, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write , 
-	      read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
+	   s_inc, next_text, PRlat, TRlat, IRlat, read, write , 
+	      read_8, write_8, S_fail, S_match: out std_logic);
 end controller;
 
 architecture Behavioral of controller is
@@ -30,12 +30,12 @@ architecture Behavioral of controller is
 	signal S_next_text_D, S_next_text : std_logic;
 	
 	component ctl_sig  port(
-	   f1, Call_r : in std_logic;
-	   s_inc, s_inc_sp, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write, read_stk, write_stk, read_8, write_8 : out std_logic);
+	   f1 : in std_logic;
+	   s_inc, PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
+      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -51,8 +51,8 @@ architecture Behavioral of controller is
     signal S_next_ist, S_s_next_text : std_logic;
 	
 	---ctl_sig
-	signal S_s_inc, S_PRlat, S_s_inc_sp, S_s_dcr, S_SPlat,
-	  S_TRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk, S_read_8, S_write_8:  std_logic;
+	signal S_s_inc, S_PRlat, 
+	  S_TRlat, S_IRlat, S_read, S_write , S_read_8, S_write_8:  std_logic;
 	
 	signal test : std_logic;
 	
@@ -63,7 +63,7 @@ architecture Behavioral of controller is
         clk : in std_logic;
         trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
-        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r : out std_logic;
+        Set_r, Set_or_r, Obyte_r, Rset_r : out std_logic;
         Byte_r : out std_logic);
     end component;
     
@@ -79,6 +79,13 @@ architecture Behavioral of controller is
      end component; 
 
 begin
+
+	--START : reg_pos_et_d_ff port map(
+	   --clk => clk,
+	   --D => '1',
+	   --lat => '1',
+	   --rst => S_START_rst,
+	   --Q => S_START);
 	   
     START : d_ff port map(
         clk => clk,
@@ -90,6 +97,51 @@ begin
         trg => S_START1,
         next_trg => S_START);
 	   
+	--F1 : d_ff port map(
+	   --clk => clk,
+	   --trg => S_F1_D,
+	   --next_trg => S_f1);
+	   
+	--Dec : d_ff port map(
+	   --clk => clk,
+	   --trg => S_Dec_D,
+	   --next_trg => S_dec);
+		 
+	--F1 : reg_pos_et_d_ff port map(
+	   --clk => clk,
+	   --D => S_F1_D,
+	   --lat => '1',
+	   --rst =>rst,
+	   --Q => S_f1);
+	
+	--F2 : reg_pos_et_d_ff port map(
+          --clk => clk,
+          --D => S_F2_D,
+          --lat => '1',
+          --rst =>rst,
+          --Q => S_f2);
+	
+	--Dec_Ex : reg_pos_et_d_ff port map(
+	   --clk => clk,
+	   --D => S_Dec_D,
+	   --lat => '1',
+	   --rst =>rst,
+	   --Q => S_dec);
+	   
+	--Exe : reg_pos_et_d_ff port map(
+          --clk => clk,
+          --D => S_Exe_D,
+          --lat => '1',
+          --rst =>rst,
+          --Q => S_Exe);
+	   
+	   
+	--Next_text1 : reg_pos_et_d_ff port map(
+             --clk => clk,
+             --D => S_next_text_D,
+             --lat => '1',
+             --rst =>rst,
+             --Q => S_next_text);
              
     Next_text1 : d_ff port map(
         clk => clk,
@@ -97,19 +149,13 @@ begin
         next_trg => S_next_text); 
 		 
 	ctl_sig1 : ctl_sig port map(
-	   f1 => S_F1_next_ist_D,
-	   Call_r => S_Call,
+	   f1 => S_f1,
 	   s_inc => S_s_inc,
-	   s_dcr => S_s_dcr,
-	   s_inc_sp => S_s_inc_sp,
-	   SPlat => S_SPlat,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
 	   IRlat => S_IRlat,
 	   read => S_read,
 	   write => S_write,
-	   read_stk => S_read_stk,
-	   write_stk => S_write_stk,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 			
@@ -118,15 +164,21 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_next_ist_D <= S_START or S_next_ist ;
+	S_F1_next_ist_D <= S_START or (S_next_ist);
 	S_F1_next_text_D <= S_START or S_s_next_text;
+	
+	--S_F2_D <= S_f1;
+	
+	
 	------------Dec-
-	S_Dec_D <= S_f1 or S_wait_text;	
+	S_Dec_D <= S_f1 or S_wait_text;
+	
 	S_Exe_D <= S_dec;
 	
 	-----------Next_text
 	S_next_text_D <= S_START or (S_s_next_text);
 
+	--S_Set <= Set_r and S_Dec;
 	
 	F1 : f port map(
 	   clk => clk,
@@ -146,8 +198,7 @@ begin
 	   Byte_r => S_Byte,
 	   Set_or_r => S_Set_or,
 	   Obyte_r => S_Obyte,
-	   Rset_r => S_Rset,
-	   Call_r => S_Call);
+	   Rset_r => S_rset);
 
 	
 	Ex1 : Ex port map(
@@ -157,7 +208,6 @@ begin
       Set_or_r => S_Set_or,
       Obyte_r => S_Obyte,
       Rset_r => S_rset,
-      Call_r => S_Call,
       instruction => nez_in_f,
       text_in => text_out_f,
       Wait_text => S_wait_text_D,
@@ -166,16 +216,13 @@ begin
       Fail => S_s_fail);
       
 	Wait_text : reg_pos_et_d_ff port map(
-         clk => clk,
-         D => S_wait_text_D,
-         lat => '1',
-         rst =>rst,
-         Q => S_wait_text);
+       clk => clk,
+       D => S_wait_text_D,
+       lat => '1',
+       rst =>rst,
+       Q => S_wait_text);
       
 	s_inc <= S_s_inc;
-	s_dcr <= S_s_dcr;
-	s_inc_sp <= S_s_inc_sp;
-	SPlat <= S_SPlat;
 	PRlat <= S_PRlat;
 	TRlat <= S_TRlat;
 	IRlat <= S_IRlat;
@@ -183,8 +230,6 @@ begin
 	write <= S_write;
 	read_8 <= S_read_8;
 	write_8 <= S_write_8;
-	read_stk <= S_read_stk;
-	write_stk <= S_write_stk;
 	next_text <= S_next_text_D; ----------
 	S_match <= S_next_ist;
 	S_fail <= S_s_fail;
