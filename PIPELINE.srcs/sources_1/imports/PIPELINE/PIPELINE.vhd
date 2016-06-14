@@ -13,10 +13,12 @@ architecture Behavioral of TEST is
 	   clk,rst : in std_logic;
 	   mem_d_in : in std_logic_vector(31 downto 0);
 	   mem_d_8_in : in std_logic_vector(7 downto 0);
-	   read, read_8, write, write_8 : out std_logic;
+	   read, read_8, write, write_8, read_stk, write_stk : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
-	   addr : out std_logic_vector(31 downto 0));
+	   addr : out std_logic_vector(31 downto 0);
+       addr_stk : out std_logic_vector(15 downto 0);
+       mem_d_stk_in : out std_logic_vector(31 downto 0));
 	end component;
 	
 	component MEMORY port(
@@ -30,6 +32,13 @@ architecture Behavioral of TEST is
 	   addr : in std_logic_vector(31 downto 0);
 	   data : inout std_logic_vector(7 downto 0));
 	end component;
+	
+	component MEMORY_STK port(
+       read, write : in std_logic;
+       addr : in std_logic_vector(15 downto 0);
+       data_in : in std_logic_vector(31 downto 0);
+       data_out : out std_logic_vector(31 downto 0));
+    end component;
 
 	signal mem_d_in : std_logic_vector(31 downto 0);
 	signal read,write : std_logic;
@@ -50,6 +59,10 @@ architecture Behavioral of TEST is
     signal count : integer := 0;
     
     signal test : std_logic_vector(28 downto 0) := (others => '0');
+    
+    signal read_stk, write_stk : std_logic;
+    signal addr_stk : std_logic_vector(15 downto 0);
+    signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
 
 begin
 	
@@ -59,13 +72,17 @@ begin
 	   mem_d_in => mem_d_in,
 	   mem_d_8_in => mem_d_8_in, 
 	   read => read, 
-	   read_8 => read_8, 
+	   read_8 => read_8,
+	   read_stk => read_stk,
+       write_stk => write_stk, 
 	   write => write, 
 	   write_8 => write_8, 
 	   S_fail => fail, 
 	   S_match => match , 
 	   addr_8 => addr_8, 
-	   addr => addr);
+	   addr_stk => addr_stk,
+       addr => addr,
+       mem_d_stk_in => mem_d_stk_in);
 	   
 	--match <= '1';
 	  
@@ -83,6 +100,13 @@ begin
 	   rst => rst, 
 	   addr => addr_8, 
 	   data => mem_d_8_in);
+	   
+	MEMORY3 : MEMORY_STK port map(
+       read => read_stk, 
+       write => write_stk, 
+       addr => addr_stk, 
+       data_in => mem_d_stk_in,
+       data_out => mem_d_stk_out);
 	
 	process(clk)
 	begin

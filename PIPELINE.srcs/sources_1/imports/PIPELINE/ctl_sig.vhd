@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity ctl_sig is
 	port(
 	   f1, Call_r: in std_logic;
-	   s_inc, put_stk,  PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
+	   s_inc, put_stk, s_dcr, SPlat,  PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -47,5 +47,24 @@ begin
             put_stk <= '0';
         end if;
     end process;
+    
+---SPlat
+        process(Call_r) begin
+            if(Call_r = '1') then    
+                SPlat <= '1';
+            else
+                SPlat <= '0';
+            end if;
+        end process;
+
+   --write_stk
+        process(Call_r)
+        begin
+       if(Call_r = '1') then    
+            write_stk <= '1';
+        else
+            write_stk <= '0';
+        end if;
+         end process;
 
 end Behavioral;
