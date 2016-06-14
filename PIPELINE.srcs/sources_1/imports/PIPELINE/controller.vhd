@@ -6,8 +6,8 @@ entity controller is
 	   clk, rst, Set_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
-	   s_inc, next_text, PRlat, TRlat, IRlat, read, write , 
-	      read_8, write_8, S_fail, S_match: out std_logic);
+	   s_inc, next_text, s_inc_sp, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write , 
+	      read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
 end controller;
 
 architecture Behavioral of controller is
@@ -31,7 +31,7 @@ architecture Behavioral of controller is
 	
 	component ctl_sig  port(
 	   f1, Call_r : in std_logic;
-	   s_inc, PRlat, TRlat, IRlat, read, write, read_8, write_8 : out std_logic);
+	   s_inc, s_inc_sp, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write, read_stk, write_stk, read_8, write_8 : out std_logic);
 	end component;
 	
 	component Ex 
@@ -51,8 +51,8 @@ architecture Behavioral of controller is
     signal S_next_ist, S_s_next_text : std_logic;
 	
 	---ctl_sig
-	signal S_s_inc, S_PRlat, 
-	  S_TRlat, S_IRlat, S_read, S_write , S_read_8, S_write_8:  std_logic;
+	signal S_s_inc, S_PRlat, S_s_inc_sp, S_s_dcr, S_SPlat,
+	  S_TRlat, S_IRlat, S_read, S_write , S_read_stk, S_write_stk, S_read_8, S_write_8:  std_logic;
 	
 	signal test : std_logic;
 	
@@ -100,11 +100,16 @@ begin
 	   f1 => S_F1_next_ist_D,
 	   Call_r => S_Call,
 	   s_inc => S_s_inc,
+	   s_dcr => S_s_dcr,
+	   s_inc_sp => S_s_inc_sp,
+	   SPlat => S_SPlat,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
 	   IRlat => S_IRlat,
 	   read => S_read,
 	   write => S_write,
+	   read_stk => S_read_stk,
+	   write_stk => S_write_stk,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 			
@@ -168,6 +173,9 @@ begin
          Q => S_wait_text);
       
 	s_inc <= S_s_inc;
+	s_dcr <= S_s_dcr;
+	s_inc_sp <= S_s_inc_sp;
+	SPlat <= S_SPlat;
 	PRlat <= S_PRlat;
 	TRlat <= S_TRlat;
 	IRlat <= S_IRlat;
@@ -175,6 +183,8 @@ begin
 	write <= S_write;
 	read_8 <= S_read_8;
 	write_8 <= S_write_8;
+	read_stk <= S_read_stk;
+	write_stk <= S_write_stk;
 	next_text <= S_next_text_D; ----------
 	S_match <= S_next_ist;
 	S_fail <= S_s_fail;

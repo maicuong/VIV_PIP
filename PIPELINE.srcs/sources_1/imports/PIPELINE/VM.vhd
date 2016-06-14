@@ -5,10 +5,12 @@ entity VM is
 		port(clk,rst : in std_logic;
             mem_d_in : in std_logic_vector(31 downto 0);
             mem_d_8_in : in std_logic_vector(7 downto 0);
-            read, read_8, write, write_8 : out std_logic;
+            read, read_8, write, write_8, read_stk, write_stk : out std_logic;
             S_fail, S_match : out std_logic;
             addr_8 : out std_logic_vector(31 downto 0);
-            addr : out std_logic_vector(31 downto 0));
+            addr : out std_logic_vector(31 downto 0);
+            addr_stk : out std_logic_vector(15 downto 0);
+            mem_d_stk_in : out std_logic_vector(31 downto 0));
 end VM;
 
 architecture Behavioral of VM is
@@ -25,6 +27,11 @@ architecture Behavioral of VM is
 	   f : out std_logic_vector(31 downto 0));
 	end component;
 
+	component sp_reg port(
+	   lat, clk, rst, s_dcr, s_inc : in std_logic;
+	   d : in std_logic_vector(15 downto 0);
+	   f : out std_logic_vector(15 downto 0));
+	end component;
 	
 	---BUS_A
 	signal S_BUS_A : std_logic_vector(31 downto 0);
@@ -53,8 +60,8 @@ architecture Behavioral of VM is
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   IRlat,   
-	   s_inc, next_text,
-	   PRlat, TRlat,  read, write, read_8, write_8, S_fail, S_match: out std_logic);
+	   s_inc, next_text, SPlat, s_dcr, s_inc_sp,
+	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
@@ -74,7 +81,7 @@ architecture Behavioral of VM is
 	signal S_SPlat, S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
 	signal S_SP_F, S_SP_D : std_logic_vector(15 downto 0);
 	
-	signal S_read_8, S_write_8 : std_logic;
+	signal S_read_8, S_write_8, S_read_stk, S_write_stk : std_logic;
 	
 	signal S_dec : std_logic;
 	
@@ -105,6 +112,16 @@ begin
 	   s_inc => S_s_t_inc,
 	   d => (others => '0'),
 	   f => S_TR_F);
+	   
+	   
+	SP : sp_reg port map (
+          lat => S_SPlat,
+          clk => clk,
+          rst => rst,
+          s_inc => S_s_inc_sp,
+          s_dcr => S_s_dcr,
+          d => S_SP_D,
+          f => S_SP_F);
 		 
 	op_decoder1 : op_decoder port map(
           Op => mem_d_in(31 downto 24), ---
@@ -120,14 +137,22 @@ begin
 	   IRlat => S_IRlat,
 	   next_text => S_s_t_inc,
 	   s_inc => S_s_inc,
+	   s_inc_sp => S_s_inc_sp,
+	   s_dcr => S_s_dcr,
+	   SPlat => S_SPlat,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
        S_fail => S_fail,------------
 	   S_match => S_match,----------
 	   read => S_read,
 	   write => S_write,
+	   read_stk => S_read_stk,
+	   write_stk => S_write_stk,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
+
+
+    mem_d_stk_in <= ("000000000000000000000000" & mem_d_in(15 downto 8)) when (S_s_inc_sp = '1') else (others => '0');
 
 
     --Output	 
@@ -141,5 +166,8 @@ begin
 	read_8 <= S_s_t_inc;
 	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
+	read_stk <= S_read_stk;
+	write_stk <= S_write_stk;
+	addr_stk <= S_SP_F;
 
 end Behavioral;
