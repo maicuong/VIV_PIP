@@ -32,10 +32,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity Ex is
-  Port (Byte_r, Set_r, Set_or_r, Obyte_r, Nany_r, Rset_r : in  std_logic;
-        instruction : in std_logic_vector(31 downto 0);
+  Port (clk, Set_r : in  std_logic;
+        instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
-        Next_text, Next_ist, Fail, Wait_text : out std_logic);
+        Next_text, Next_ist, Fail: out std_logic);
 end Ex;
 
 architecture Behavioral of Ex is
@@ -51,6 +51,7 @@ end component;
 
 component Set
     port(
+    CLK : in std_logic;
     TRG : in std_logic;
     TEXT_IN : in std_logic_vector(7 downto 0);
     NEZ_IN : in std_logic_vector(15 downto 0) ;
@@ -88,7 +89,7 @@ component Rset
 	port(
 		TRG : in std_logic;
 		TEXT_IN : in std_logic_vector(7 downto 0);
-		NEZ_IN : in std_logic_vector(15 downto 0) ;
+		NEZ_IN : in std_logic_vector(7 downto 0) ;
 		NEXT_IST : out std_logic;
 		NEXT_TEXT : out std_logic);
 end component;
@@ -104,50 +105,18 @@ signal S_rset_next_ist, S_rset_next_text : std_logic;
 
 begin
 
-	Byte1 : Byte port map (
-		TRG => Byte_r,
-		TEXT_IN => text_in,
-		NEZ_IN => instruction(7 downto 0),
-		FAIL => S_byte_fail,
-		MATCH => S_byte_match);
+
 		
 	Set1 : Set port map(
+	    CLK => clk,
         TRG => Set_r,
         TEXT_IN => text_in,
-        NEZ_IN => instruction(15 downto 0),
+        NEZ_IN => instruction,
         FAIL => S_set_fail,
         MATCH => S_set_match);
-        
-	Set_or1 : Set_or port map(
-        TRG => Set_or_r,
-        TEXT_IN => text_in,
-        NEZ_IN => instruction(15 downto 0),
-        FAIL => S_set_or_fail,
-        MATCH => S_set_or_match);
-        
-    Obyte1 : Obyte port map(
-        TRG => Obyte_r,
-        TEXT_IN => text_in,
-        NEZ_IN => instruction(7 downto 0),
-        NEXT_TEXT => S_obyte_next_text,
-        MATCH => S_obyte_match);
-        
-    Nany1 : Nany port map(
-        TRG => Nany_r,
-        TEXT_IN => text_in,
-        FAIL => S_nany_fail,
-        MATCH => S_nany_match);
 
-	Rset1 : Rset port map(
-		TRG => Rset_r,
-		TEXT_IN => text_in, 
-		NEZ_IN => instruction(15 downto 0),
-		NEXT_IST => S_rset_next_ist,
-		NEXT_TEXT => S_rset_next_text);
-
-    Next_ist <= S_byte_match or S_set_match or S_set_or_match or S_obyte_match or S_nany_match or S_rset_next_ist;
-    Fail <= S_byte_fail or S_set_fail or S_set_or_fail;
-    Wait_text <= S_rset_next_text;
-    Next_text <= S_byte_match or S_set_match or S_set_or_match or S_obyte_next_text or S_rset_next_text;
+    Next_ist <= S_set_match;
+    Fail <= S_set_fail;
+    Next_text <= S_set_match;
 
 end Behavioral;
