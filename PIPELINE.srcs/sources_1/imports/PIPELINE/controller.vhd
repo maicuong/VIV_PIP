@@ -104,12 +104,12 @@ begin
 	Fail2 : d_ff port map(
            clk => clk,
            trg => S_fail_cond1,
-           next_trg => S_fail_cond2);
+           next_trg => S_fail_cond);
            
-	Fail3 : d_ff port map(
-                  clk => clk,
-                  trg => S_fail_cond2,
-                  next_trg => S_fail_cond);
+	--Fail3 : d_ff port map(
+                  --clk => clk,
+                  --trg => S_fail_cond2,
+                  --next_trg => S_fail_cond);
                   
     Call : d_ff port map(
         clk => clk,

@@ -122,7 +122,7 @@ begin
 	   end if;
     end process;
 	
-	bus_clk <= test(0);
+	bus_clk <= test(24);
 
 	process(bus_clk)
 		--variable count : integer := 0;
