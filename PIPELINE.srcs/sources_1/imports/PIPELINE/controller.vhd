@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity controller is
 	port(
-	   clk, rst, Set_r  : in std_logic;
+	   clk, rst, end_sig, Set_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   s_inc, put_stk, next_text, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write , 
@@ -25,17 +25,18 @@ architecture Behavioral of controller is
 	signal S_F2_D, S_f2 : std_logic;
 	signal S_Dec_D, S_dec : std_logic;
 	signal S_Exe_D, S_Exe : std_logic;
-	signal S_Fail_D, S_fail_cond : std_logic;
+	signal S_Fail_D, S_fail_cond1, S_fail_cond2, S_fail_cond : std_logic;
 	signal S_wait_text_D, S_wait_text, S_s_wait_text : std_logic;
 	signal S_next_text_D, S_next_text : std_logic;
+	signal Call_cond : std_logic;
 	
 	component ctl_sig  port(
-	   f1, Call_r : in std_logic;
+	   f1, Call_r, Call_cond, fail_step1, fail_step2 : in std_logic;
 	   s_inc, put_stk, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (clk, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
+      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -94,10 +95,33 @@ begin
         clk => clk,
         trg => S_next_text_D,
         next_trg => S_next_text); 
-		 
+        
+	Fail1 : d_ff port map(
+           clk => clk,
+           trg => S_Fail_D,
+           next_trg => S_fail_cond1); 
+
+	Fail2 : d_ff port map(
+           clk => clk,
+           trg => S_fail_cond1,
+           next_trg => S_fail_cond2);
+           
+	Fail3 : d_ff port map(
+                  clk => clk,
+                  trg => S_fail_cond2,
+                  next_trg => S_fail_cond);
+                  
+    Call : d_ff port map(
+        clk => clk,
+        trg => S_Call,
+        next_trg => Call_cond);
+            		 
 	ctl_sig1 : ctl_sig port map(
 	   f1 => S_f1,
 	   Call_r => S_Call,
+	   Call_cond => Call_cond,
+	   fail_step1 => S_s_fail,
+	   fail_step2 => S_fail_cond1,
 	   s_inc => S_s_inc,
 	   put_stk => S_put_stk,
 	   s_dcr => S_s_dcr,
@@ -115,7 +139,7 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_next_ist_D <= S_START or (S_next_ist);
+	S_F1_next_ist_D <= S_START or (S_next_ist) or S_fail_cond;
 	S_F1_next_text_D <= S_START or S_s_next_text;
 	
 	--S_F2_D <= S_f1;
@@ -128,6 +152,7 @@ begin
 	
 	-----------Next_text
 	S_next_text_D <= S_START or (S_s_next_text);
+    S_Fail_D <= S_s_fail;
 
 	--S_Set <= Set_r and S_Dec;
 	
@@ -155,12 +180,13 @@ begin
 	
 	Ex1 : Ex port map(
 	  clk => clk,
+	  end_sig => end_sig,
       Set_r => S_Set,
       Byte_r => S_Byte,
       Set_or_r => S_Set_or,
       Obyte_r => S_Obyte,
       Rset_r => S_rset,
-      Call_r => S_call,
+      Call_r => Call_cond,
       instruction => nez_in_f,
       text_in => text_out_f,
       Wait_text => S_wait_text_D,
@@ -182,7 +208,7 @@ begin
 	PRlat <= S_PRlat;
 	TRlat <= S_TRlat;
 	IRlat <= S_IRlat;
-	read <= S_START or S_next_ist;
+	read <= S_START or S_next_ist or S_fail_cond;
 	write <= S_write;
 	read_8 <= S_read_8;
 	write_8 <= S_write_8;

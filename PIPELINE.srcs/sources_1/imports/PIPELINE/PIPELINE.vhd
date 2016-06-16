@@ -13,6 +13,7 @@ architecture Behavioral of TEST is
 	   clk,rst : in std_logic;
 	   mem_d_in : in std_logic_vector(31 downto 0);
 	   mem_d_8_in : in std_logic_vector(7 downto 0);
+	   mem_d_stk_out : in std_logic_vector(31 downto 0);
 	   read, read_8, write, write_8, read_stk, write_stk : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
@@ -63,6 +64,8 @@ architecture Behavioral of TEST is
     signal read_stk, write_stk : std_logic;
     signal addr_stk : std_logic_vector(15 downto 0);
     signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
+    
+    signal check : std_logic;
 
 begin
 	
@@ -71,6 +74,7 @@ begin
 	   rst => rst, 
 	   mem_d_in => mem_d_in,
 	   mem_d_8_in => mem_d_8_in, 
+	   mem_d_stk_out => mem_d_stk_out,
 	   read => read, 
 	   read_8 => read_8,
 	   read_stk => read_stk,
@@ -78,7 +82,7 @@ begin
 	   write => write, 
 	   write_8 => write_8, 
 	   S_fail => fail, 
-	   S_match => match , 
+	   S_match => match_reg , 
 	   addr_8 => addr_8, 
 	   addr_stk => addr_stk,
        addr => addr,
@@ -107,6 +111,9 @@ begin
        addr => addr_stk, 
        data_in => mem_d_stk_in,
        data_out => mem_d_stk_out);
+       
+    check <= '1' when (mem_d_stk_out = "00000000000000000000000000010000") else '0';
+	match <= match_reg;
 	
 	process(clk)
 	begin
@@ -115,7 +122,7 @@ begin
 	   end if;
     end process;
 	
-	bus_clk <= test(25);
+	bus_clk <= test(0);
 
 	process(bus_clk)
 		--variable count : integer := 0;

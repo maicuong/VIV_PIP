@@ -5,6 +5,7 @@ entity VM is
 		port(clk,rst : in std_logic;
             mem_d_in : in std_logic_vector(31 downto 0);
             mem_d_8_in : in std_logic_vector(7 downto 0);
+            mem_d_stk_out : in std_logic_vector(31 downto 0);
             read, read_8, write, write_8, read_stk, write_stk : out std_logic;
             S_fail, S_match : out std_logic;
             addr_8 : out std_logic_vector(31 downto 0);
@@ -58,7 +59,7 @@ architecture Behavioral of VM is
 	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r, S_Rset_r, S_Call_r : std_logic;  
 	
 	component controller port(
-	   clk, rst, Set_r : in std_logic;
+	   clk, rst, end_sig, Set_r : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   IRlat,   
@@ -87,6 +88,10 @@ architecture Behavioral of VM is
 	
 	signal S_dec : std_logic;
 	
+	signal end_sig : std_logic;
+	
+	signal test_mem_stk : std_logic_vector(31 downto 0);
+	
 begin
 
 	IR : reg_16 port map (
@@ -104,7 +109,18 @@ begin
 	   d => S_BUS_C,
 	   f => S_PR_F);
 	   
-	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else (others => '0');
+	--process(put_stk,S_read_stk)
+	--begin
+	   --if(put_stk = '1') then
+	       --S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0);
+	   --elsif(S_read_stk = '1') then
+	       --S_BUS_C <= mem_d_stk_out;
+	   --end if;
+	--end process;          
+	
+	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else 
+	           mem_d_stk_out when (S_read_stk = '1')   
+	           else (others => '0');
 		 
 	TR : rw_counter_16 port map (
 	   --lat => S_TRlat,
@@ -123,6 +139,16 @@ begin
           s_dcr => S_s_dcr,
           d => S_SP_D,
           f => S_SP_F);
+        
+    process(clk)
+    begin
+        if(S_SP_F = "0000000000000000") then    
+            end_sig <= '1';
+        else
+            end_sig <= '0';
+        end if;
+    end process;
+    --end_sig <= '1' when (S_SP_F = "0000000000000000") else '0';
 		 
 	op_decoder1 : op_decoder port map(
           Op => mem_d_in(31 downto 24), ---
@@ -132,6 +158,7 @@ begin
 	controller1 : controller port map(
 	   clk => clk, 
 	   rst => rst,
+	   end_sig => end_sig,
 	   Set_r => S_Set_r,
 	   instruction => mem_d_in,
 	   text_in => mem_d_8_in,
@@ -152,7 +179,17 @@ begin
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 
-mem_d_stk_in <= ("000000000000000000000000" & mem_d_in(15 downto 8)) when (put_stk = '1') else (others => '0');
+--mem_d_stk_in <= ("000000000000000000000000" & mem_d_in(15 downto 8)) when (put_stk = '1') else (others => '0');
+
+    --process(put_stk)
+    --begin
+        --if(put_stk = '1') then
+            test_mem_stk <= "000000000000000000000000" & mem_d_in(15 downto 8);
+           -- mem_d_stk_in <= "000000000000000000000000" & S_IR_F(15 downto 8) when (put_stk = '1') else (others => '0');
+            --mem_d_stk_in <= "00000000000000000000000000010000";
+            mem_d_stk_in <= test_mem_stk;
+        --end if;
+    --end process;            
 
     --Output	 
 	S_text_in <= mem_d_8_in;
@@ -165,7 +202,7 @@ mem_d_stk_in <= ("000000000000000000000000" & mem_d_in(15 downto 8)) when (put_s
 	read_8 <= S_s_t_inc;
 	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
-	read_stk <= S_read_stk;
+	read_stk <= S_s_dcr;
     write_stk <= S_write_stk;
     addr_stk <= S_SP_F;
      

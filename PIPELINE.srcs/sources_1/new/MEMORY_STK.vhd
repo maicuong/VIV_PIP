@@ -12,16 +12,28 @@ end MEMORY_STK;
 
 architecture RTL of MEMORY_STK is
   type ram_type is array (3 downto 0) of std_logic_vector (31 downto 0); 
-    signal RAM : ram_type ; --:= ("00000000000000000000001000000000", "00000000000000000000001100000000", "00000000000000000000001100000000", "00000000000000000000000000000011"); 
-    signal ADDR_REG : std_logic_vector(31 downto 0) ; 
+    signal RAM : ram_type ;--:= ("00000000000000000000000000010000", "00000000000000000000000000010000", "00000000000000000000000000010000", "00000000000000000000000000010000"); 
+    signal ADDR_REG : integer ; 
 begin
+	
+	ADDR_REG <= CONV_INTEGER(addr);
+	--RAM(0) <=  "00000000000000000000000000010000";
+	--RAM(1) <=  "00000000000000000000000000010000";
+	--RAM(2) <=  "00000000000000000000000000010000";
+	--RAM(3) <=  "00000000000000000000000000010000";
 	
 	process(read, write)
 	begin
-		if(read = '1') then
-			data_out <= RAM(CONV_INTEGER(addr));
+		if(read = '1' and ADDR_REG >= 0 and ADDR_REG <= 3) then
+			data_out <= RAM(ADDR_REG);
 		elsif(write = '1') then
-			RAM(CONV_INTEGER(addr)) <= data_in;
+			RAM(ADDR_REG) <= data_in;
+			
+			--RAM(0) <=  "00000000000000000000000000010000";
+            --RAM(ADDR_REG) <=  "00000000000000000000000000010000";
+            --RAM(2) <=  "00000000000000000000000000010000";
+            --RAM(3) <=  "00000000000000000000000000010000";
+			
 		--else
 			--data <= (others => '0');
 		end if;
