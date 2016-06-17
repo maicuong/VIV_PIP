@@ -28,17 +28,17 @@ architecture Behavioral of controller is
 	signal S_Fail_D, S_fail_cond1, S_fail_cond2, S_fail_cond : std_logic;
 	signal S_wait_text_D, S_wait_text, S_s_wait_text : std_logic;
 	signal S_next_text_D, S_next_text : std_logic;
-	signal Call_cond : std_logic;
+	signal Call_cond, Alt_cond : std_logic;
 	signal S_Return_cond1, S_Return_cond2 : std_logic;
 	
 	component ctl_sig  port(
-	   f1, Call_r, Call_cond, fail_step1, fail_step2, Return_step1, Return_step2 : in std_logic;
+	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, Return_step1, Return_step2 : in std_logic;
 	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, read_8, 
 	   write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r : in  std_logic;
+      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Alt_r, Return_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -49,7 +49,7 @@ architecture Behavioral of controller is
             next_trg : out std_logic);
     end component;
     
-    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return : std_logic;
+    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return, S_Alt : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text : std_logic;
 	
@@ -67,7 +67,7 @@ architecture Behavioral of controller is
         clk : in std_logic;
         trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
-        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r : out std_logic;
+        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, ALt_r : out std_logic;
         Byte_r : out std_logic);
     end component;
     
@@ -123,11 +123,18 @@ begin
         clk => clk,
         trg => S_Call,
         next_trg => Call_cond);
+        
+    Alt : d_ff port map(
+        clk => clk,
+        trg => S_Alt,
+        next_trg => Alt_cond);
             		 
 	ctl_sig1 : ctl_sig port map(
 	   f1 => S_f1,
 	   Call_r => S_Call,
 	   Call_cond => Call_cond,
+	   Alt_r => S_Alt,
+	   Alt_cond => Alt_cond,
 	   fail_step1 => S_s_fail,
 	   fail_step2 => S_fail_cond1,
 	   Return_step1 => S_Return,
@@ -191,7 +198,8 @@ begin
 	   Obyte_r => S_Obyte,
 	   Rset_r => S_rset,
 	   Call_r => S_Call,
-	   Return_r => S_Return);
+	   Return_r => S_Return,
+	   Alt_r => S_Alt);
 
 	
 	Ex1 : Ex port map(
@@ -203,6 +211,7 @@ begin
       Obyte_r => S_Obyte,
       Rset_r => S_rset,
       Call_r => Call_cond,
+      Alt_r => Alt_cond,
       Return_r => S_Return_cond1,
       instruction => nez_in_f,
       text_in => text_out_f,

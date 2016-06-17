@@ -155,7 +155,7 @@ begin
         
     process(clk)
     begin
-        if(S_SP_F = "0000000000000000") then    
+        if(S_SP_F = "0000000000000000" or S_SP_F_fail = "0000000000000000") then    
             end_sig <= '1';
         else
             end_sig <= '0';
@@ -202,10 +202,11 @@ begin
     --process(put_stk)
     --begin
         --if(put_stk = '1') then
-            test_mem_stk <= "000000000000000000000000" & mem_d_in(15 downto 8);
+            mem_d_stk_in <= "000000000000000000000000" & mem_d_in(15 downto 8);
+            mem_d_fail_stk_in <= "000000000000000000000000" & mem_d_in(7 downto 0);
            -- mem_d_stk_in <= "000000000000000000000000" & S_IR_F(15 downto 8) when (put_stk = '1') else (others => '0');
             --mem_d_stk_in <= "00000000000000000000000000010000";
-            mem_d_stk_in <= test_mem_stk;
+             
         --end if;
     --end process;            
 
@@ -220,9 +221,11 @@ begin
 	read_8 <= S_s_t_inc;
 	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
-	read_fail_stk <= S_s_dcr;
+	read_fail_stk <= S_read_fail_stk;
 	read_stk <= S_read_stk;
     write_stk <= S_write_stk;
+    write_fail_stk <= S_write_fail_stk;
     addr_stk <= S_SP_F;
+    addr_fail_stk <= S_SP_F_fail;
      
 end Behavioral;
