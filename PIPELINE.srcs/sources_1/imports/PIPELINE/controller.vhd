@@ -6,8 +6,8 @@ entity controller is
 	   clk, rst, end_sig, Set_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
-	   s_inc, put_stk, next_text, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write , 
-	      read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
+	   s_inc, put_stk, put_fail_stk, next_text, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write , 
+	      read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, S_fail, S_match: out std_logic);
 end controller;
 
 architecture Behavioral of controller is
@@ -29,14 +29,16 @@ architecture Behavioral of controller is
 	signal S_wait_text_D, S_wait_text, S_s_wait_text : std_logic;
 	signal S_next_text_D, S_next_text : std_logic;
 	signal Call_cond : std_logic;
+	signal S_Return_cond1, S_Return_cond2 : std_logic;
 	
 	component ctl_sig  port(
-	   f1, Call_r, Call_cond, fail_step1, fail_step2 : in std_logic;
-	   s_inc, put_stk, s_dcr, SPlat, PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
+	   f1, Call_r, Call_cond, fail_step1, fail_step2, Return_step1, Return_step2 : in std_logic;
+	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, read_8, 
+	   write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic);
 	end component;
 	
 	component Ex 
-      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r : in  std_logic;
+      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -47,13 +49,14 @@ architecture Behavioral of controller is
             next_trg : out std_logic);
     end component;
     
-    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call : std_logic;
+    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text : std_logic;
 	
 	---ctl_sig
-	signal S_s_inc, S_put_stk, S_PRlat, S_s_dcr, S_SPlat,
-	  S_TRlat, S_IRlat, S_read, S_write , S_read_8, S_write_8, S_read_stk, S_write_stk :  std_logic;
+	signal S_s_inc, S_put_stk, S_put_fail_stk, S_PRlat, S_s_dcr, S_s_dcr_fail, S_SPlat, S_SPlat_fail,
+	  S_TRlat, S_IRlat, S_read, S_write , S_read_8, S_write_8, S_read_stk,
+	  S_write_stk, S_read_fail_stk, S_write_fail_stk :  std_logic;
 	
 	signal test : std_logic;
 	
@@ -64,7 +67,7 @@ architecture Behavioral of controller is
         clk : in std_logic;
         trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
-        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r : out std_logic;
+        Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r : out std_logic;
         Byte_r : out std_logic);
     end component;
     
@@ -106,10 +109,15 @@ begin
            trg => S_fail_cond1,
            next_trg => S_fail_cond);
            
-	--Fail3 : d_ff port map(
-                  --clk => clk,
-                  --trg => S_fail_cond2,
-                  --next_trg => S_fail_cond);
+	Return1 : d_ff port map(
+          clk => clk,
+          trg => S_Return,
+          next_trg => S_return_cond1); 
+          
+	Return2 : d_ff port map(
+          clk => clk,
+          trg => S_Return_cond1,
+          next_trg => S_Return_cond2);    
                   
     Call : d_ff port map(
         clk => clk,
@@ -122,10 +130,15 @@ begin
 	   Call_cond => Call_cond,
 	   fail_step1 => S_s_fail,
 	   fail_step2 => S_fail_cond1,
+	   Return_step1 => S_Return,
+	   Return_step2 => S_Return_cond1,
 	   s_inc => S_s_inc,
 	   put_stk => S_put_stk,
+	   put_fail_stk => S_put_fail_stk,
 	   s_dcr => S_s_dcr,
+	   s_dcr_fail => S_s_dcr_fail,
 	   SPlat => S_SPlat,
+	   SPlat_fail => S_SPlat_fail,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
 	   IRlat => S_IRlat,
@@ -133,6 +146,8 @@ begin
 	   write => S_write,
 	   read_stk => S_read_stk,
 	   write_stk => S_write_stk,
+	   read_fail_stk => S_read_fail_stk,
+	   write_fail_stk => S_write_fail_stk,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 				
@@ -175,7 +190,8 @@ begin
 	   Set_or_r => S_Set_or,
 	   Obyte_r => S_Obyte,
 	   Rset_r => S_rset,
-	   Call_r => S_Call);
+	   Call_r => S_Call,
+	   Return_r => S_Return);
 
 	
 	Ex1 : Ex port map(
@@ -187,6 +203,7 @@ begin
       Obyte_r => S_Obyte,
       Rset_r => S_rset,
       Call_r => Call_cond,
+      Return_r => S_Return_cond1,
       instruction => nez_in_f,
       text_in => text_out_f,
       Wait_text => S_wait_text_D,
@@ -203,8 +220,11 @@ begin
       
 	s_inc <= S_s_inc;
 	put_stk <= S_put_stk;
+	put_fail_stk <= S_put_fail_stk;
 	s_dcr <= S_s_dcr;
+	s_dcr_fail <= S_s_dcr_fail;
 	SPlat <= S_SPlat;
+	SPlat_fail <= S_SPlat_fail;
 	PRlat <= S_PRlat;
 	TRlat <= S_TRlat;
 	IRlat <= S_IRlat;
@@ -214,6 +234,8 @@ begin
 	write_8 <= S_write_8;
 	read_stk <= S_read_stk;
     write_stk <= S_write_stk;
+    read_fail_stk <= S_read_fail_stk;
+    write_fail_stk <= S_write_fail_stk;
 	next_text <= S_next_text_D; ----------
 	S_match <= S_next_ist;
 	S_fail <= S_s_fail;

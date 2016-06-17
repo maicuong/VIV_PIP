@@ -5,13 +5,13 @@ entity VM is
 		port(clk,rst : in std_logic;
             mem_d_in : in std_logic_vector(31 downto 0);
             mem_d_8_in : in std_logic_vector(7 downto 0);
-            mem_d_stk_out : in std_logic_vector(31 downto 0);
-            read, read_8, write, write_8, read_stk, write_stk : out std_logic;
+            mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
+            read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic;
             S_fail, S_match : out std_logic;
             addr_8 : out std_logic_vector(31 downto 0);
             addr : out std_logic_vector(31 downto 0);
-            addr_stk : out std_logic_vector(15 downto 0);
-            mem_d_stk_in : out std_logic_vector(31 downto 0));
+            addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
+            mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 end VM;
 
 architecture Behavioral of VM is
@@ -47,7 +47,7 @@ architecture Behavioral of VM is
 	signal S_PRlat, S_s_inc : std_logic;
 	signal S_PR_F : std_logic_vector(31 downto 0);
 	
-	signal put_stk : std_logic;
+	signal put_stk, put_fail_stk : std_logic;
 	
 	component op_decoder port(
        Op : in std_logic_vector(7 downto 0);
@@ -63,8 +63,8 @@ architecture Behavioral of VM is
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
 	   IRlat,   
-	   s_inc, put_stk, next_text, SPlat, s_dcr,
-	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, S_fail, S_match: out std_logic);
+	   s_inc, put_stk, put_fail_stk, next_text, SPlat, SPlat_fail, s_dcr, s_dcr_fail,
+	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
@@ -81,10 +81,13 @@ architecture Behavioral of VM is
 	signal S_text_in : std_logic_vector(7 downto 0);
 	
 	---SP
-	signal S_SPlat, S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
+	signal S_SPlat,  S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
 	signal S_SP_F, S_SP_D : std_logic_vector(15 downto 0);
+    signal S_SPlat_fail,  S_s_dcr_fail, S_s_inc_sp_fail : std_logic;
+    signal S_SP_F_fail, S_SP_D_fail : std_logic_vector(15 downto 0);
 	
-	signal S_read_8, S_write_8, S_read_stk, S_write_stk : std_logic;
+	
+	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk : std_logic;
 	
 	signal S_dec : std_logic;
 	
@@ -119,7 +122,8 @@ begin
 	--end process;          
 	
 	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else 
-	           mem_d_stk_out when (S_read_stk = '1')   
+	           mem_d_fail_stk_out when (S_read_fail_stk = '1') else
+	           mem_d_stk_out when (S_read_stk = '1')    
 	           else (others => '0');
 		 
 	TR : rw_counter_16 port map (
@@ -131,7 +135,7 @@ begin
 	   d => (others => '0'),
 	   f => S_TR_F);
 		 
-	SP : sp_reg port map (
+	SP_RETURN : sp_reg port map (
           lat => S_SPlat,
           clk => clk,
           rst => rst,
@@ -139,6 +143,15 @@ begin
           s_dcr => S_s_dcr,
           d => S_SP_D,
           f => S_SP_F);
+          
+	SP_FAIL : sp_reg port map (
+          lat => S_SPlat_fail,
+          clk => clk,
+          rst => rst,
+          s_inc => put_fail_stk,
+          s_dcr => S_s_dcr_fail,
+          d => S_SP_D_fail,
+          f => S_SP_F_fail);
         
     process(clk)
     begin
@@ -166,8 +179,11 @@ begin
 	   next_text => S_s_t_inc,
 	   s_inc => S_s_inc,
 	   s_dcr => S_s_dcr,
+	   s_dcr_fail => S_s_dcr_fail,
 	   SPlat => S_SPlat,
+	   SPlat_fail => S_SPlat_fail,
 	   put_stk => put_stk,
+	   put_fail_stk => put_fail_stk,
 	   PRlat => S_PRlat,
 	   TRlat => S_TRlat,
        S_fail => S_fail,------------
@@ -176,6 +192,8 @@ begin
 	   write => S_write,
 	   read_stk => S_read_stk,
 	   write_stk => S_write_stk,
+	   read_fail_stk => S_read_fail_stk,
+	   write_fail_stk => S_write_fail_stk,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 
@@ -202,7 +220,8 @@ begin
 	read_8 <= S_s_t_inc;
 	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
-	read_stk <= S_s_dcr;
+	read_fail_stk <= S_s_dcr;
+	read_stk <= S_read_stk;
     write_stk <= S_write_stk;
     addr_stk <= S_SP_F;
      

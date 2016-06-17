@@ -3,8 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctl_sig is
 	port(
-	   f1, Call_r, Call_cond, fail_step1, fail_step2: in std_logic;
-	   s_inc, put_stk, s_dcr, SPlat,  PRlat, TRlat, IRlat, read, write, read_8, write_8, read_stk, write_stk : out std_logic);
+	   f1, Call_r, Call_cond, fail_step1, fail_step2, Return_step1, Return_step2: in std_logic;
+	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, 
+	   read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -20,8 +21,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1, Call_cond, fail_step1) begin
-		if(f1 = '1' or Call_cond = '1' or fail_step1 = '1') then	
+		process(f1, Call_cond, fail_step1, Return_step1) begin
+		if(f1 = '1' or Call_cond = '1' or fail_step1 = '1' or Return_step1 = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';
@@ -49,11 +50,19 @@ begin
     end process;
     
 ---SPlat
-        process(Call_cond, fail_step1) begin
-            if(Call_cond = '1' or fail_step1 = '1') then    
+        process(Call_cond, Return_step1) begin
+            if(Call_cond = '1' or Return_step1 = '1') then    
                 SPlat <= '1';
             else
                 SPlat <= '0';
+            end if;
+        end process;
+
+        process(fail_step1) begin
+            if(fail_step1 = '1') then    
+                SPlat_fail <= '1';
+            else
+                SPlat_fail <= '0';
             end if;
         end process;
 
@@ -70,15 +79,33 @@ begin
         process(fail_step1)
         begin
        if(fail_step1 = '1') then    
-            s_dcr <= '1';
+            s_dcr_fail <= '1';
         else
-            s_dcr <= '0';
+            s_dcr_fail <= '0';
         end if;
          end process;
+         
+        process(Return_step1)
+         begin
+        if(Return_step1 = '1') then    
+             s_dcr <= '1';
+         else
+             s_dcr <= '0';
+         end if;
+          end process;
  
          process(fail_step1)
          begin
         if(fail_step1 = '1') then    
+             read_fail_stk <= '1';
+         else
+             read_fail_stk <= '0';
+         end if;
+          end process;
+
+         process(Return_step1)
+         begin
+        if(Return_step1 = '1') then    
              read_stk <= '1';
          else
              read_stk <= '0';

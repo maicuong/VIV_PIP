@@ -13,13 +13,13 @@ architecture Behavioral of TEST is
 	   clk,rst : in std_logic;
 	   mem_d_in : in std_logic_vector(31 downto 0);
 	   mem_d_8_in : in std_logic_vector(7 downto 0);
-	   mem_d_stk_out : in std_logic_vector(31 downto 0);
-	   read, read_8, write, write_8, read_stk, write_stk : out std_logic;
+	   mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
+	   read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
 	   addr : out std_logic_vector(31 downto 0);
-       addr_stk : out std_logic_vector(15 downto 0);
-       mem_d_stk_in : out std_logic_vector(31 downto 0));
+       addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
+       mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 	end component;
 	
 	component MEMORY port(
@@ -66,6 +66,10 @@ architecture Behavioral of TEST is
     signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
     
     signal check : std_logic;
+    
+    signal read_fail_stk, write_fail_stk : std_logic; 
+    signal addr_fail_stk : std_logic_vector(15 downto 0);  
+    signal mem_d_fail_stk_in, mem_d_fail_stk_out : std_logic_vector(31 downto 0);
 
 begin
 	
@@ -75,9 +79,12 @@ begin
 	   mem_d_in => mem_d_in,
 	   mem_d_8_in => mem_d_8_in, 
 	   mem_d_stk_out => mem_d_stk_out,
+	   mem_d_fail_stk_out => mem_d_fail_stk_out,
 	   read => read, 
 	   read_8 => read_8,
 	   read_stk => read_stk,
+	   read_fail_stk => read_fail_stk,
+	   write_fail_stk => write_fail_stk,
        write_stk => write_stk, 
 	   write => write, 
 	   write_8 => write_8, 
@@ -85,8 +92,10 @@ begin
 	   S_match => match_reg , 
 	   addr_8 => addr_8, 
 	   addr_stk => addr_stk,
+	   addr_fail_stk => addr_fail_stk,
        addr => addr,
-       mem_d_stk_in => mem_d_stk_in);
+       mem_d_stk_in => mem_d_stk_in,
+       mem_d_fail_stk_in => mem_d_fail_stk_in);
 	   
 	--match <= '1';
 	  
@@ -105,12 +114,19 @@ begin
 	   addr => addr_8, 
 	   data => mem_d_8_in);
 	   
-	MEMORY3 : MEMORY_STK port map(
+	MEMORY_RETURN : MEMORY_STK port map(
        read => read_stk, 
        write => write_stk, 
        addr => addr_stk, 
        data_in => mem_d_stk_in,
        data_out => mem_d_stk_out);
+       
+	MEMORY_FAIL : MEMORY_STK port map(
+       read => read_fail_stk, 
+       write => write_fail_stk, 
+       addr => addr_fail_stk, 
+       data_in => mem_d_fail_stk_in,
+       data_out => mem_d_fail_stk_out);
        
     check <= '1' when (mem_d_stk_out = "00000000000000000000000000010000") else '0';
 	match <= match_reg;
