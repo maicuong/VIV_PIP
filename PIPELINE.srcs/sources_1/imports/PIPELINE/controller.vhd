@@ -38,7 +38,8 @@ architecture Behavioral of controller is
 	end component;
 	
 	component Ex 
-      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Alt_r, Return_r : in  std_logic;
+      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, 
+            Rset_r, Call_r, Alt_r, Return_r, Oset_r, Oset_or_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Next_text, Next_ist, Fail : out std_logic);
@@ -49,7 +50,7 @@ architecture Behavioral of controller is
             next_trg : out std_logic);
     end component;
     
-    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return, S_Alt : std_logic;
+    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return, S_Alt, S_Oset, S_Oset_or : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text : std_logic;
 	
@@ -68,7 +69,7 @@ architecture Behavioral of controller is
         trg : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, ALt_r : out std_logic;
-        Byte_r : out std_logic);
+        Byte_r, Oset_r, Oset_or_r : out std_logic);
     end component;
     
     signal S_START1 : std_logic;
@@ -199,7 +200,9 @@ begin
 	   Rset_r => S_rset,
 	   Call_r => S_Call,
 	   Return_r => S_Return,
-	   Alt_r => S_Alt);
+	   Alt_r => S_Alt,
+	   Oset_r => S_Oset,
+	   Oset_or_r => S_Oset_or);
 
 	
 	Ex1 : Ex port map(
@@ -212,6 +215,8 @@ begin
       Rset_r => S_rset,
       Call_r => Call_cond,
       Alt_r => Alt_cond,
+      Oset_r => S_Oset,
+      Oset_or_r => S_Oset_or,
       Return_r => S_Return_cond1,
       instruction => nez_in_f,
       text_in => text_out_f,
