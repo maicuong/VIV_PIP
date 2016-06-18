@@ -6,7 +6,7 @@ entity controller is
 	   clk, rst, end_sig, Set_r  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
-	   s_inc, put_stk, put_fail_stk, next_text, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write , 
+	   jump, s_inc, put_stk, put_fail_stk, next_text, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write , 
 	      read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, S_fail, S_match: out std_logic);
 end controller;
 
@@ -31,9 +31,11 @@ architecture Behavioral of controller is
 	signal Call_cond, Alt_cond : std_logic;
 	signal S_Return_cond1, S_Return_cond2 : std_logic;
 	signal S_str_goto_next_text_cond : std_logic;
+	signal S_jump_D, S_jump, S_jump_ok, S_s_jump_ok : std_logic;
 	
 	component ctl_sig  port(
-	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, Return_step1, Return_step2 : in std_logic;
+	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, 
+	   Return_step1, Return_step2, Jump : in std_logic;
 	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, read_8, 
 	   write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic);
 	end component;
@@ -82,6 +84,7 @@ architecture Behavioral of controller is
         text_in : in std_logic_vector(7 downto 0);
         nez_in: out std_logic_vector(15 downto 0);
         text_out : out std_logic_vector(7 downto 0);
+        jump_ok : out std_logic;
         f_out : out std_logic);
      end component; 
 
@@ -136,6 +139,11 @@ begin
         clk => clk,
         trg => S_str_goto_next_text,
         next_trg => S_str_goto_next_text_cond);
+        
+    Jump1 : d_ff port map(
+        clk => clk,
+        trg => S_jump_D,
+        next_trg => S_jump);
             		 
 	ctl_sig1 : ctl_sig port map(
 	   f1 => S_f1,
@@ -147,6 +155,7 @@ begin
 	   fail_step2 => S_fail_cond1,
 	   Return_step1 => S_Return,
 	   Return_step2 => S_Return_cond1,
+	   Jump => S_jump_ok,
 	   s_inc => S_s_inc,
 	   put_stk => S_put_stk,
 	   put_fail_stk => S_put_fail_stk,
@@ -169,10 +178,12 @@ begin
 	------------START CIRCUIT
 	S_START_rst <= not rst;
 	------------F1
-	S_F1_next_ist_D <= S_START or (S_next_ist) or S_fail_cond;
+	S_F1_next_ist_D <= S_START or (S_next_ist and not S_s_jump_ok) or (S_jump) or S_fail_cond;
 	S_F1_next_text_D <= S_START or S_s_next_text;
 	
 	--S_F2_D <= S_f1;
+	
+	S_jump_D <= S_next_ist and S_s_jump_ok;
 	
 	
 	------------Dec-
@@ -194,7 +205,10 @@ begin
 	   text_in => text_in,
 	   nez_in => nez_in_f,
 	   text_out => text_out_f,
+	   jump_ok => S_s_jump_ok,
 	   f_out => S_f1);
+	
+	S_jump_ok <= S_s_jump_ok and S_next_ist;
 	
 	Dec1 : Dec port map(
 	   clk => clk,
@@ -254,7 +268,7 @@ begin
 	PRlat <= S_PRlat;
 	TRlat <= S_TRlat;
 	IRlat <= S_IRlat;
-	read <= S_START or S_next_ist or S_fail_cond;
+	read <= S_START or (S_next_ist and not S_s_jump_ok) or (S_jump) or S_fail_cond;
 	write <= S_write;
 	read_8 <= S_read_8;
 	write_8 <= S_write_8;
@@ -265,5 +279,6 @@ begin
 	next_text <= S_next_text_D; ----------
 	S_match <= S_next_ist;
 	S_fail <= S_s_fail;
+	jump <= S_jump_ok;
 	
 end Behavioral;

@@ -33,12 +33,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity f is
    port(
-        clk, next_ist, next_text : in std_logic;
-instruction : in std_logic_vector(31 downto 0);
-text_in : in std_logic_vector(7 downto 0);
-nez_in : out std_logic_vector(15 downto 0); 
-text_out : out std_logic_vector(7 downto 0);
-f_out : out std_logic);
+     clk, next_ist, next_text : in std_logic;
+     instruction : in std_logic_vector(31 downto 0);
+     text_in : in std_logic_vector(7 downto 0);
+     nez_in : out std_logic_vector(15 downto 0);
+     jump_ok : out std_logic; 
+     text_out : out std_logic_vector(7 downto 0);
+     f_out : out std_logic);
 end f;
 
 architecture Behavioral of f is
@@ -65,5 +66,16 @@ begin
             end if;
          end if;
      end process;
+     
+    process(clk)
+     begin
+         if(clk'event and clk = '1') then
+             if(instruction(23 downto 16) /= "00000000") then
+                 jump_ok <= '1';
+             else
+                jump_ok <= '0';
+             end if;
+          end if;
+      end process;
 
 end Behavioral;

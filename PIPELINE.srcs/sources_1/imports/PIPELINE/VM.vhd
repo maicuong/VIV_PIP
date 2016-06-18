@@ -62,7 +62,7 @@ architecture Behavioral of VM is
 	   clk, rst, end_sig, Set_r : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
-	   IRlat,   
+	   IRlat, jump,   
 	   s_inc, put_stk, put_fail_stk, next_text, SPlat, SPlat_fail, s_dcr, s_dcr_fail,
 	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, S_fail, S_match: out std_logic);
 	end component;
@@ -95,6 +95,8 @@ architecture Behavioral of VM is
 	
 	signal test_mem_stk : std_logic_vector(31 downto 0);
 	
+	signal jump : std_logic;
+	
 begin
 
 	IR : reg_16 port map (
@@ -121,7 +123,8 @@ begin
 	   --end if;
 	--end process;          
 	
-	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else 
+	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else
+	           "000000000000000000000000" & S_IR_F(23 downto 16) when (jump = '1') else 
 	           mem_d_fail_stk_out when (S_read_fail_stk = '1') else
 	           mem_d_stk_out when (S_read_stk = '1')    
 	           else (others => '0');
@@ -177,6 +180,7 @@ begin
 	   text_in => mem_d_8_in,
 	   IRlat => S_IRlat,
 	   next_text => S_s_t_inc,
+	   jump => jump,
 	   s_inc => S_s_inc,
 	   s_dcr => S_s_dcr,
 	   s_dcr_fail => S_s_dcr_fail,
