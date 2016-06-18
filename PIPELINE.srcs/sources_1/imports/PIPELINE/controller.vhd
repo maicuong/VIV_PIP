@@ -30,6 +30,7 @@ architecture Behavioral of controller is
 	signal S_next_text_D, S_next_text : std_logic;
 	signal Call_cond, Alt_cond : std_logic;
 	signal S_Return_cond1, S_Return_cond2 : std_logic;
+	signal S_str_goto_next_text_cond : std_logic;
 	
 	component ctl_sig  port(
 	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, Return_step1, Return_step2 : in std_logic;
@@ -39,10 +40,10 @@ architecture Behavioral of controller is
 	
 	component Ex 
       Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, 
-            Rset_r, Call_r, Alt_r, Return_r, Oset_r, Oset_or_r : in  std_logic;
+            Rset_r, Call_r, Alt_r, Return_r, Oset_r, Oset_or_r, Str_first, Str_second : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
-            Wait_text, Next_text, Next_ist, Fail : out std_logic);
+            Wait_text, Str_goto_next_text, Next_text, Next_ist, Fail : out std_logic);
     end component;
     
     component d_ff
@@ -50,9 +51,10 @@ architecture Behavioral of controller is
             next_trg : out std_logic);
     end component;
     
-    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, S_Return, S_Alt, S_Oset, S_Oset_or : std_logic;
+    signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, 
+            S_Return, S_Alt, S_Oset, S_Oset_or, S_str_first, S_str_second : std_logic;
     signal S_s_match, S_s_fail : std_logic;
-    signal S_next_ist, S_s_next_text : std_logic;
+    signal S_next_ist, S_s_next_text, S_str_goto_next_text : std_logic;
 	
 	---ctl_sig
 	signal S_s_inc, S_put_stk, S_put_fail_stk, S_PRlat, S_s_dcr, S_s_dcr_fail, S_SPlat, S_SPlat_fail,
@@ -66,10 +68,10 @@ architecture Behavioral of controller is
 
     component Dec port(
         clk : in std_logic;
-        trg : in std_logic;
+        trg, str_goto_next_text : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, ALt_r : out std_logic;
-        Byte_r, Oset_r, Oset_or_r : out std_logic);
+        Byte_r, Oset_r, Oset_or_r, Str_first_r, Str_second_r : out std_logic);
     end component;
     
     signal S_START1 : std_logic;
@@ -129,6 +131,11 @@ begin
         clk => clk,
         trg => S_Alt,
         next_trg => Alt_cond);
+        
+    Str_goto_next_text : d_ff port map(
+        clk => clk,
+        trg => S_str_goto_next_text,
+        next_trg => S_str_goto_next_text_cond);
             		 
 	ctl_sig1 : ctl_sig port map(
 	   f1 => S_f1,
@@ -192,6 +199,7 @@ begin
 	Dec1 : Dec port map(
 	   clk => clk,
 	   trg => S_Dec_D,
+	   str_goto_next_text => S_str_goto_next_text_cond,
 	   instruction => instruction,
 	   Set_r => S_Set,
 	   Byte_r => S_Byte,
@@ -202,9 +210,10 @@ begin
 	   Return_r => S_Return,
 	   Alt_r => S_Alt,
 	   Oset_r => S_Oset,
-	   Oset_or_r => S_Oset_or);
+	   Oset_or_r => S_Oset_or,
+	   Str_first_r => S_Str_first,
+	   Str_second_r => S_Str_second);
 
-	
 	Ex1 : Ex port map(
 	  clk => clk,
 	  end_sig => end_sig,
@@ -218,9 +227,12 @@ begin
       Oset_r => S_Oset,
       Oset_or_r => S_Oset_or,
       Return_r => S_Return_cond1,
+      Str_first => S_str_first,
+      Str_second => S_str_second,
       instruction => nez_in_f,
       text_in => text_out_f,
       Wait_text => S_wait_text_D,
+      Str_goto_next_text => S_str_goto_next_text,
       Next_ist => S_next_ist,
       Next_text => S_s_next_text,
       Fail => S_s_fail);
