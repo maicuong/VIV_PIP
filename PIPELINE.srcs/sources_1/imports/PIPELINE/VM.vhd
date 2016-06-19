@@ -2,16 +2,20 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity VM is
-		port(clk,rst : in std_logic;
-            mem_d_in : in std_logic_vector(31 downto 0);
-            mem_d_8_in : in std_logic_vector(7 downto 0);
-            mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
-            read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic;
-            S_fail, S_match : out std_logic;
-            addr_8 : out std_logic_vector(31 downto 0);
-            addr : out std_logic_vector(31 downto 0);
-            addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
-            mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
+    port(
+	    clk,rst : in std_logic;
+        mem_d_in : in std_logic_vector(31 downto 0);
+        mem_d_8_in : in std_logic_vector(7 downto 0);
+        mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
+        mem_d_first_table_out, mem_d_first_record_out : in std_logic_vector(7 downto 0);
+        read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, 
+        read_first_table, write_first_table, read_first_record, write_first_record : out std_logic;
+        S_fail, S_match : out std_logic;
+        addr_8 : out std_logic_vector(31 downto 0);
+        addr, addr_first_table : out std_logic_vector(31 downto 0);
+        addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
+        addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
+        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 end VM;
 
 architecture Behavioral of VM is
@@ -62,9 +66,11 @@ architecture Behavioral of VM is
 	   clk, rst, end_sig, Set_r : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
+       text_out_VM : out std_logic_vector(7 downto 0);
 	   IRlat, jump,   
 	   s_inc, put_stk, put_fail_stk, next_text, SPlat, SPlat_fail, s_dcr, s_dcr_fail,
-	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, S_fail, S_match: out std_logic);
+	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk,
+	   read_first_table, write_first_table, read_first_record, write_first_record, S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
@@ -78,7 +84,7 @@ architecture Behavioral of VM is
 	signal S_TRlat, S_s_t_inc : std_logic;
 	signal S_TR_F : std_logic_vector(31 downto 0);
 	
-	signal S_text_in : std_logic_vector(7 downto 0);
+	signal S_text_in, S_text_out : std_logic_vector(7 downto 0);
 	
 	---SP
 	signal S_SPlat,  S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
@@ -87,7 +93,8 @@ architecture Behavioral of VM is
     signal S_SP_F_fail, S_SP_D_fail : std_logic_vector(15 downto 0);
 	
 	
-	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk : std_logic;
+	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk,
+	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record : std_logic;
 	
 	signal S_dec : std_logic;
 	
@@ -125,6 +132,7 @@ begin
 	
 	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else
 	           "000000000000000000000000" & S_IR_F(23 downto 16) when (jump = '1') else 
+	           "000000000000000000000000" & mem_d_first_record_out when (S_read_first_record = '1') else 
 	           mem_d_fail_stk_out when (S_read_fail_stk = '1') else
 	           mem_d_stk_out when (S_read_stk = '1')    
 	           else (others => '0');
@@ -178,6 +186,7 @@ begin
 	   Set_r => S_Set_r,
 	   instruction => mem_d_in,
 	   text_in => mem_d_8_in,
+	   text_out_VM => S_text_out,
 	   IRlat => S_IRlat,
 	   next_text => S_s_t_inc,
 	   jump => jump,
@@ -198,6 +207,10 @@ begin
 	   write_stk => S_write_stk,
 	   read_fail_stk => S_read_fail_stk,
 	   write_fail_stk => S_write_fail_stk,
+	   read_first_table => S_read_first_table,
+	   write_first_table => S_write_first_table,
+	   read_first_record => S_read_first_record,
+	   write_first_record => S_write_first_record,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 
@@ -229,7 +242,13 @@ begin
 	read_stk <= S_read_stk;
     write_stk <= S_write_stk;
     write_fail_stk <= S_write_fail_stk;
+    read_first_table <= S_read_first_table;
+    write_first_table <= S_write_first_table;
+    read_first_record <= S_read_first_record;
+    write_first_record <= S_write_first_record;
     addr_stk <= S_SP_F;
     addr_fail_stk <= S_SP_F_fail;
+    addr_first_table <= S_PR_F;
+    addr1_first_record <= S_text_out;
      
 end Behavioral;

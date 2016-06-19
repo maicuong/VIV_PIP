@@ -4,9 +4,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity ctl_sig is
 	port(
 	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, 
-	   Return_step1, Return_step2, Jump: in std_logic;
+	   Return_step1, Return_step2, Jump, First_step1, First_step2, First_step3, First_step4: in std_logic;
 	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, 
-	   read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk : out std_logic);
+	   read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, read_first_table, write_first_table,
+	   read_first_record, write_first_record : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -22,8 +23,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1, Call_cond, fail_step1, Return_step1, Jump) begin
-		if(f1 = '1' or Call_cond = '1' or fail_step1 = '1' or Return_step1 = '1' or Jump = '1') then	
+		process(f1, Call_cond, fail_step1, Return_step1, Jump, First_step2) begin
+		if(f1 = '1' or Call_cond = '1' or fail_step1 = '1' or Return_step1 = '1' or Jump = '1' or First_step2 = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';
@@ -138,5 +139,27 @@ begin
              read_stk <= '0';
          end if;
           end process;
-         
+
+    process(First_step1)
+      begin
+        if(First_step1 = '1') then    
+             read_first_table <= '1';
+         else
+             read_first_table <= '0';
+         end if;
+      end process;          
+
+    write_first_table <= '0';
+
+    process(First_step2)
+      begin
+        if(First_step2 = '1') then    
+             read_first_record <= '1';
+         else
+             read_first_record <= '0';
+         end if;
+      end process;        
+    
+    write_first_record <= '0';     
+    
 end Behavioral;

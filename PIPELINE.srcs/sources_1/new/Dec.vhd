@@ -35,7 +35,7 @@ entity Dec is
   Port ( clk, trg, str_goto_next_text : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, 
-        Return_r, Alt_r, OSet_r, OSet_or_r, Str_first_r, Str_second_r : out std_logic);
+        Return_r, Alt_r, OSet_r, OSet_or_r, Str_first_r, Str_second_r, First_r : out std_logic);
 end Dec;
 
 architecture Behavioral of Dec is
@@ -217,5 +217,20 @@ process(clk)
             end if;
          end if;
     end process;
+
+process(clk)
+     begin
+      if(clk'event and clk = '1') then
+        if (trg = '1') then
+          if(instruction(31 downto 24) = "00001010") then
+            First_r <= '1';
+          else
+            First_r <= '0';
+          end if;
+        else 
+            First_r <= '0';
+        end if;
+      end if;
+  end process;
 
 end Behavioral;
