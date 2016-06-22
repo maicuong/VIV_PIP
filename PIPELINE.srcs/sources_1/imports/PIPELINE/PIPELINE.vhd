@@ -20,7 +20,7 @@ architecture Behavioral of TEST is
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
 	   addr, addr_first_table : out std_logic_vector(31 downto 0);
-       addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
+       addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
        addr1_first_record : out std_logic_vector(7 downto 0);
        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 	end component;
@@ -39,7 +39,7 @@ architecture Behavioral of TEST is
 	
 	component MEMORY_STK port(
        read, write : in std_logic;
-       addr : in std_logic_vector(15 downto 0);
+       addr_in, addr_out : in std_logic_vector(15 downto 0);
        data_in : in std_logic_vector(31 downto 0);
        data_out : out std_logic_vector(31 downto 0));
     end component;
@@ -83,13 +83,13 @@ architecture Behavioral of TEST is
     signal test : std_logic_vector(28 downto 0) := (others => '0');
     
     signal read_stk, write_stk : std_logic;
-    signal addr_stk : std_logic_vector(15 downto 0);
+    signal addr_in_stk, addr_out_stk : std_logic_vector(15 downto 0);
     signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
     
     signal check : std_logic;
     
     signal read_fail_stk, write_fail_stk : std_logic; 
-    signal addr_fail_stk : std_logic_vector(15 downto 0);  
+    signal addr_in_fail_stk, addr_out_fail_stk : std_logic_vector(15 downto 0);  
     signal mem_d_fail_stk_in, mem_d_fail_stk_out : std_logic_vector(31 downto 0);
 
 begin
@@ -118,8 +118,10 @@ begin
 	   S_fail => fail, 
 	   S_match => match_reg , 
 	   addr_8 => addr_8, 
-	   addr_stk => addr_stk,
-	   addr_fail_stk => addr_fail_stk,
+	   addr_in_stk => addr_in_stk,
+	   addr_out_stk => addr_out_stk,
+	   addr_in_fail_stk => addr_in_fail_stk,
+	   addr_out_fail_stk => addr_out_fail_stk,
        addr => addr,
        addr_first_table => addr_first_table,
        addr1_first_record => addr1_first_record,
@@ -147,14 +149,16 @@ begin
 	MEMORY_RETURN : MEMORY_STK port map(
        read => read_stk, 
        write => write_stk, 
-       addr => addr_stk, 
+       addr_in => addr_in_stk,
+       addr_out => addr_out_stk, 
        data_in => mem_d_stk_in,
        data_out => mem_d_stk_out);
        
 	MEMORY_FAIL : MEMORY_STK port map(
        read => read_fail_stk, 
        write => write_fail_stk, 
-       addr => addr_fail_stk, 
+       addr_in => addr_in_fail_stk,
+       addr_out => addr_out_fail_stk, 
        data_in => mem_d_fail_stk_in,
        data_out => mem_d_fail_stk_out);
        

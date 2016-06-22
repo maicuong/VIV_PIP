@@ -6,7 +6,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity sp_reg is
 	port(lat,clk,rst,s_inc,s_dcr : in std_logic;
 			d : in std_logic_vector(15 downto 0);
-			f : out std_logic_vector(15 downto 0));
+			f_put : out std_logic_vector(15 downto 0);
+			f_pop : out std_logic_vector(15 downto 0));
 end sp_reg;
 
 architecture Behavioral of sp_reg is
@@ -43,23 +44,25 @@ begin
 	rw_counter1 : rw_counter port map (
 		lat => lat_inc,
 		clk => clk,
-		rst => '0',
+		rst => rst,
 		s_inc => s_inc,
 		d => inc_d,
 		f => inc_f);
 		
-	inc_d <= "0000000000000001" when (rst = '1') else (dcr_f + '1');
-		
+	--inc_d <= "0000000000000001" when (rst = '1') else (dcr_f + '1');
+    inc_d <= (dcr_f + '1');
+    		
 	rw_d_counter_16_1 : rw_d_counter_16 port map (
 		lat => lat_dcr,
 		clk => clk,
-		rst => '0',
+		rst => rst,
 		s_dcr => s_dcr,
 		d => dcr_d,
 		f => dcr_f);
 	
-	dcr_d <= "0000000000000001" when (rst = '1') else (inc_f - '1');
-	
+	--dcr_d <= "0000000000000001" when (rst = '1') else (inc_f - '1');
+    dcr_d <= (inc_f - '1');
+    	
 	s_inc_reg : d_ff port map(clk, s_inc, S_s_inc);
 	s_dcr_reg : d_ff port map(clk, s_dcr, S_s_dcr);
 	
@@ -81,7 +84,8 @@ begin
 	               --end_sig <= '1';
 	           --end if;
 	           --if(end_sig = '0') then 
-			     f <= dcr_f;
+			     f_put <= inc_f;
+			     f_pop <= dcr_f;
 			   --else
 			     --f <= (others => '0');
 			   --end if;

@@ -13,7 +13,7 @@ entity VM is
         S_fail, S_match : out std_logic;
         addr_8 : out std_logic_vector(31 downto 0);
         addr, addr_first_table : out std_logic_vector(31 downto 0);
-        addr_stk, addr_fail_stk : out std_logic_vector(15 downto 0);
+        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
         mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 end VM;
@@ -35,7 +35,7 @@ architecture Behavioral of VM is
 	component sp_reg port(
  	   lat, clk, rst, s_dcr, s_inc : in std_logic;
  	   d : in std_logic_vector(15 downto 0);
- 	   f : out std_logic_vector(15 downto 0));
+ 	   f_put, f_pop : out std_logic_vector(15 downto 0));
  	end component;
 	
 	---BUS_A
@@ -88,9 +88,9 @@ architecture Behavioral of VM is
 	
 	---SP
 	signal S_SPlat,  S_s_dcr, S_s_inc_sp , S_get_sp : std_logic;
-	signal S_SP_F, S_SP_D : std_logic_vector(15 downto 0);
+	signal S_SP_F_put, S_SP_F_pop, S_SP_D : std_logic_vector(15 downto 0);
     signal S_SPlat_fail,  S_s_dcr_fail, S_s_inc_sp_fail : std_logic;
-    signal S_SP_F_fail, S_SP_D_fail : std_logic_vector(15 downto 0);
+    signal S_SP_F_fail_put, S_SP_F_fail_pop, S_SP_D_fail : std_logic_vector(15 downto 0);
 	
 	
 	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk,
@@ -153,7 +153,8 @@ begin
           s_inc => put_stk,
           s_dcr => S_s_dcr,
           d => S_SP_D,
-          f => S_SP_F);
+          f_put => S_SP_F_put,
+          f_pop => S_SP_F_pop);
           
 	SP_FAIL : sp_reg port map (
           lat => S_SPlat_fail,
@@ -162,11 +163,12 @@ begin
           s_inc => put_fail_stk,
           s_dcr => S_s_dcr_fail,
           d => S_SP_D_fail,
-          f => S_SP_F_fail);
+          f_put => S_SP_F_fail_put,
+          f_pop => S_SP_F_fail_pop);
         
     process(clk)
     begin
-        if(S_SP_F = "0000000000000000" or S_SP_F_fail = "0000000000000000") then    
+        if(S_SP_F_pop = "1111111111111111" or S_SP_F_fail_pop = "1111111111111111") then    
             end_sig <= '1';
         else
             end_sig <= '0';
@@ -246,8 +248,22 @@ begin
     write_first_table <= S_write_first_table;
     read_first_record <= S_read_first_record;
     write_first_record <= S_write_first_record;
-    addr_stk <= S_SP_F;
-    addr_fail_stk <= S_SP_F_fail;
+    
+    addr_in_stk <= S_SP_F_put; --when (S_write_stk = '1') else
+    addr_out_stk <= S_SP_F_pop; -- when (S_read_stk = '1') else (others => '0');
+                
+    --process(S_write_fail_stk, S_read_fail_stk)
+    --begin
+        --if(S_write_fail_stk = '1') then
+            addr_in_fail_stk <= S_SP_F_fail_put;
+        --elsif(S_read_fail_stk = '1') then
+            addr_out_fail_stk <= S_SP_F_fail_pop;
+        --end if;
+    --end process;
+                
+    --addr_fail_stk <= S_SP_F_fail_put when (S_write_fail_stk = '1') else
+                     --S_SP_F_fail_pop when (S_read_fail_stk = '1') else (others => '0');
+    
     addr_first_table <= S_PR_F;
     addr1_first_record <= S_text_out;
      

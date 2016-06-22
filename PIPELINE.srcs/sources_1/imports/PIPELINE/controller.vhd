@@ -35,10 +35,11 @@ architecture Behavioral of controller is
 	signal S_str_goto_next_text_cond : std_logic;
 	signal S_jump_D, S_jump, S_jump_ok, S_s_jump_ok : std_logic;
 	signal S_first_step1, S_first_step2, S_first_step3, S_first_step4 : std_logic;
+	signal S_Succ_cond1, S_Succ_cond2 : std_logic;
 	
 	component ctl_sig  port(
 	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, 
-	   Return_step1, Return_step2, Jump, First_step1, First_step2, First_step3, First_step4 : in std_logic;
+	   Return_step1, Return_step2, Succ_step1, Succ_step2, Jump, First_step1, First_step2, First_step3, First_step4 : in std_logic;
 	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, read_8, 
 	   write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, read_first_table, write_first_table,
 	   read_first_record, write_first_record : out std_logic);
@@ -46,7 +47,7 @@ architecture Behavioral of controller is
 	
 	component Ex 
       Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, 
-            Rset_r, Call_r, Alt_r, Return_r, Oset_r, Oset_or_r, Str_first, Str_second, First_r : in  std_logic;
+            Rset_r, Call_r, Alt_r, Return_r, Succ_r, Oset_r, Oset_or_r, Str_first, Str_second, First_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Str_goto_next_text, Next_text, Next_ist, Fail : out std_logic);
@@ -58,7 +59,7 @@ architecture Behavioral of controller is
     end component;
     
     signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, 
-            S_Return, S_Alt, S_Oset, S_Oset_or, S_str_first, S_str_second, S_First : std_logic;
+            S_Return, S_Alt, S_Oset, S_Oset_or, S_str_first, S_str_second, S_First, S_Fail_inst, S_Succ : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text, S_str_goto_next_text : std_logic;
 	
@@ -78,7 +79,7 @@ architecture Behavioral of controller is
         trg, str_goto_next_text : in std_logic;
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, ALt_r : out std_logic;
-        Byte_r, Oset_r, Oset_or_r, Str_first_r, Str_second_r, First_r : out std_logic);
+        Byte_r, Oset_r, Oset_or_r, Str_first_r, Str_second_r, First_r, Fail_r, Succ_r : out std_logic);
     end component;
     
     signal S_START1 : std_logic;
@@ -128,7 +129,17 @@ begin
 	Return2 : d_ff port map(
           clk => clk,
           trg => S_Return_cond1,
-          next_trg => S_Return_cond2);    
+          next_trg => S_Return_cond2);
+   
+   	Succ1 : d_ff port map(
+         clk => clk,
+         trg => S_Succ,
+         next_trg => S_Succ_cond1);
+         
+	Succ2 : d_ff port map(
+         clk => clk,
+         trg => S_Succ_cond1,
+         next_trg => S_Succ_cond2);            
                   
     Call : d_ff port map(
         clk => clk,
@@ -173,10 +184,12 @@ begin
 	   Call_cond => Call_cond,
 	   Alt_r => S_Alt,
 	   Alt_cond => Alt_cond,
-	   fail_step1 => S_s_fail,
+	   fail_step1 => S_fail_D,
 	   fail_step2 => S_fail_cond1,
 	   Return_step1 => S_Return,
 	   Return_step2 => S_Return_cond1,
+	   Succ_step1 => S_succ,
+	   Succ_step2 => S_Succ_cond1,
 	   Jump => S_jump_ok,
 	   First_step1 => S_first_step1,
 	   First_step2 => S_first_step2,
@@ -223,7 +236,7 @@ begin
 	
 	-----------Next_text
 	S_next_text_D <= S_START or (S_s_next_text);
-    S_Fail_D <= S_s_fail;
+    S_Fail_D <= S_s_fail or S_Fail_inst;
 
 	--S_Set <= Set_r and S_Dec;
 	
@@ -257,7 +270,9 @@ begin
 	   Oset_or_r => S_Oset_or,
 	   Str_first_r => S_Str_first,
 	   Str_second_r => S_Str_second,
-	   First_r => S_First);
+	   First_r => S_First,
+	   Fail_r => S_Fail_inst,
+	   Succ_r => S_Succ);
 
 	Ex1 : Ex port map(
 	  clk => clk,
@@ -272,6 +287,7 @@ begin
       Oset_r => S_Oset,
       Oset_or_r => S_Oset_or,
       Return_r => S_Return_cond1,
+      Succ_r => S_Succ_cond1,
       Str_first => S_str_first,
       Str_second => S_str_second,
       First_r => S_first_step3,

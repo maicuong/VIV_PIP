@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity Ex is
  Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, Alt_r, Oset_r, 
-        Oset_or_r, Str_first, Str_second, First_r : in  std_logic;
+        Oset_or_r, Str_first, Str_second, First_r, Succ_r : in  std_logic;
         instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
         Wait_text, Str_goto_next_text, Next_text, Next_ist, Fail: out std_logic);
@@ -138,7 +138,7 @@ signal S_set_or_match, S_set_or_fail : std_logic;
 signal S_obyte_match, S_obyte_next_text : std_logic;
 signal S_nany_match, S_nany_fail : std_logic;
 signal S_rset_next_ist, S_rset_next_text : std_logic;
-signal S_call, S_Return, S_Alt, S_First : std_logic;
+signal S_call, S_Return, S_Alt, S_First, S_Succ : std_logic;
 signal S_oset_match, S_oset_next_text : std_logic;
 signal S_oset_or_match, S_oset_or_next_text : std_logic;
 signal S_str_goto_next_text, S_str_match, S_str_fail : std_logic;
@@ -245,6 +245,17 @@ begin
                      end if;
                 end process;
                 
+      process(clk)
+         begin
+            if(clk'event and clk = '1') then
+                if(Succ_r = '1') then
+                   S_Succ <= '1';
+                else
+                   S_Succ <= '0';
+                end if;
+             end if;
+         end process;
+                
    process(clk)
       begin
         if(clk'event and clk = '1') then
@@ -258,8 +269,8 @@ begin
 
     Next_ist <= S_set_match or S_byte_match or S_set_or_match or S_obyte_match 
         or S_rset_next_ist or S_Call or S_Return or S_Alt or S_oset_match 
-        or S_oset_or_match or S_str_match or S_First;
-    --Fail <= (S_set_fail or S_byte_fail or S_set_or_fail or S_str_fail) and not end_sig;
+        or S_oset_or_match or S_str_match or S_First or S_Succ;
+    Fail <= (S_set_fail or S_byte_fail or S_set_or_fail or S_str_fail) and not end_sig;
     Wait_text <= S_rset_next_text;
     Str_goto_next_text <= S_str_goto_next_text; 
     Next_text <= S_set_match or S_byte_match or S_set_or_match or S_obyte_next_text 
