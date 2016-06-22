@@ -8,13 +8,16 @@ entity VM is
         mem_d_8_in : in std_logic_vector(7 downto 0);
         mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
         mem_d_first_table_out, mem_d_first_record_out : in std_logic_vector(7 downto 0);
+        mem_d_set_table_out : in std_logic;
         read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, 
-        read_first_table, write_first_table, read_first_record, write_first_record : out std_logic;
+        read_first_table, write_first_table, read_first_record, write_first_record,
+        read_set_table, write_set_table : out std_logic;
         S_fail, S_match : out std_logic;
         addr_8 : out std_logic_vector(31 downto 0);
         addr, addr_first_table : out std_logic_vector(31 downto 0);
         addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
+        addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
         mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 end VM;
 
@@ -63,14 +66,15 @@ architecture Behavioral of VM is
 	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r, S_Rset_r, S_Call_r : std_logic;  
 	
 	component controller port(
-	   clk, rst, end_sig, Set_r : in std_logic;
+	   clk, rst, end_sig, Set_r, set_table_data : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
        text_out_VM : out std_logic_vector(7 downto 0);
 	   IRlat, jump,   
 	   s_inc, put_stk, put_fail_stk, next_text, SPlat, SPlat_fail, s_dcr, s_dcr_fail,
 	   PRlat, TRlat,  read, write, read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk,
-	   read_first_table, write_first_table, read_first_record, write_first_record, S_fail, S_match: out std_logic);
+	   read_first_table, write_first_table, read_first_record, write_first_record, read_set_table, write_set_table,
+	    S_fail, S_match: out std_logic);
 	end component;
 	
 	--- controller
@@ -94,7 +98,8 @@ architecture Behavioral of VM is
 	
 	
 	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk,
-	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record : std_logic;
+	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record,
+	       S_read_set_table, S_write_set_table : std_logic;
 	
 	signal S_dec : std_logic;
 	
@@ -186,6 +191,7 @@ begin
 	   rst => rst,
 	   end_sig => end_sig,
 	   Set_r => S_Set_r,
+	   set_table_data => mem_d_set_table_out,
 	   instruction => mem_d_in,
 	   text_in => mem_d_8_in,
 	   text_out_VM => S_text_out,
@@ -213,6 +219,8 @@ begin
 	   write_first_table => S_write_first_table,
 	   read_first_record => S_read_first_record,
 	   write_first_record => S_write_first_record,
+	   read_set_table => S_read_set_table,
+	   write_set_table => S_write_set_table,
 	   read_8 => S_read_8,
 	   write_8 => S_write_8);
 
@@ -225,6 +233,7 @@ begin
             mem_d_fail_stk_in <= "000000000000000000000000" & mem_d_in(7 downto 0);
            -- mem_d_stk_in <= "000000000000000000000000" & S_IR_F(15 downto 8) when (put_stk = '1') else (others => '0');
             --mem_d_stk_in <= "00000000000000000000000000010000";
+             
              
         --end if;
     --end process;            
@@ -248,6 +257,8 @@ begin
     write_first_table <= S_write_first_table;
     read_first_record <= S_read_first_record;
     write_first_record <= S_write_first_record;
+    read_set_table <= S_read_set_table;
+    write_set_table <= S_write_set_table;
     
     addr_in_stk <= S_SP_F_put; --when (S_write_stk = '1') else
     addr_out_stk <= S_SP_F_pop; -- when (S_read_stk = '1') else (others => '0');
@@ -266,5 +277,7 @@ begin
     
     addr_first_table <= S_PR_F;
     addr1_first_record <= S_text_out;
+    addr1_set_table <= S_text_out;
+    addr2_set_table <= S_IR_F(7 downto 0);
      
 end Behavioral;

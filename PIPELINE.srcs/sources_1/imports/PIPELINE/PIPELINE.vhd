@@ -15,13 +15,15 @@ architecture Behavioral of TEST is
 	   mem_d_8_in : in std_logic_vector(7 downto 0);
 	   mem_d_stk_out, mem_d_fail_stk_out : in std_logic_vector(31 downto 0);
 	   mem_d_first_table_out, mem_d_first_record_out : in std_logic_vector(7 downto 0);
+	   mem_d_set_table_out : in std_logic;
 	   read, read_8, write, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, 
-	   read_first_table, write_first_table, read_first_record, write_first_record : out std_logic;
+	   read_first_table, write_first_table, read_first_record, write_first_record, 
+	   read_set_table, write_set_table : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
 	   addr, addr_first_table : out std_logic_vector(31 downto 0);
        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
-       addr1_first_record : out std_logic_vector(7 downto 0);
+       addr1_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 	end component;
 	
@@ -57,10 +59,20 @@ architecture Behavioral of TEST is
                  data_in : in std_logic_vector(7 downto 0);
                  data_out : out std_logic_vector(7 downto 0));
     end component;
+    
+    component SET_TABLE
+            port (read, write : in std_logic;
+                 addr1, addr2 : in std_logic_vector(7 downto 0);
+                 data_in : in std_logic;
+                 data_out : out std_logic);
+    end component;
 
     signal read_first_table, write_first_table, read_first_record, write_first_record : std_logic;
+    signal read_set_table, write_set_table : std_logic;
     signal addr1_first_record, addr2_first_record, data_in_first_table,
            data_out_first_table, data_in_first_record, data_out_first_record : std_logic_vector(7 downto 0);
+    signal addr1_set_table, addr2_set_table : std_logic_vector(7 downto 0); 
+    signal data_in_set_table, data_out_set_table : std_logic;
 
 	signal mem_d_in : std_logic_vector(31 downto 0);
 	signal read,write : std_logic;
@@ -103,18 +115,21 @@ begin
 	   mem_d_fail_stk_out => mem_d_fail_stk_out,
 	   mem_d_first_table_out => data_out_first_table,
 	   mem_d_first_record_out => data_out_first_record,
+	   mem_d_set_table_out => data_out_set_table,
 	   read => read, 
 	   read_8 => read_8,
 	   read_stk => read_stk,
 	   read_fail_stk => read_fail_stk,
 	   read_first_table => read_first_table,
 	   read_first_record => read_first_record,
+	   read_set_table => read_set_table,
 	   write_first_table => write_first_table,
 	   write_first_record => write_first_record,
 	   write_fail_stk => write_fail_stk,
        write_stk => write_stk, 
 	   write => write, 
 	   write_8 => write_8, 
+	   write_set_table => write_set_table,
 	   S_fail => fail, 
 	   S_match => match_reg , 
 	   addr_8 => addr_8, 
@@ -126,6 +141,8 @@ begin
        addr_first_table => addr_first_table,
        addr1_first_record => addr1_first_record,
        --addr2_first_record => addr2_first_record,
+       addr1_set_table => addr1_set_table,
+       addr2_set_table => addr2_set_table,
        mem_d_stk_in => mem_d_stk_in,
        mem_d_fail_stk_in => mem_d_fail_stk_in);
 	   
@@ -168,6 +185,14 @@ begin
          addr => addr_first_table,
          data_in => data_in_first_table,
          data_out => data_out_first_table);
+         
+   SET_TABLE1 : SET_TABLE port map(
+      read => read_set_table,
+      write => write_set_table,
+      addr1 => addr1_set_table,
+      addr2 => addr2_set_table,
+      data_in => data_in_set_table,
+      data_out => data_out_set_table);
          
     data_in_first_table <= (others => '0');
     

@@ -4,10 +4,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity ctl_sig is
 	port(
 	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, 
-	   Return_step1, Return_step2, Succ_step1, Succ_step2, Jump, First_step1, First_step2, First_step3, First_step4: in std_logic;
+	   Return_step1, Return_step2, Succ_step1, Succ_step2, Jump, First_step1, First_step2, 
+	   First_step3, First_step4, Set_r: in std_logic;
 	   s_inc, put_stk, put_fail_stk, s_dcr, s_dcr_fail, SPlat, SPlat_fail, PRlat, TRlat, IRlat, read, write, 
 	   read_8, write_8, read_stk, write_stk, read_fail_stk, write_fail_stk, read_first_table, write_first_table,
-	   read_first_record, write_first_record : out std_logic);
+	   read_first_record, write_first_record, read_set_table, write_set_table : out std_logic);
 end ctl_sig;
 
 architecture Behavioral of ctl_sig is
@@ -152,6 +153,15 @@ begin
          end if;
       end process;        
     
-    write_first_record <= '0';     
+    write_first_record <= '0';
+    
+    process(Set_r)
+      begin
+        if(Set_r = '1') then    
+             read_set_table <= '1';
+         else
+             read_set_table <= '0';
+         end if;
+      end process;        
     
 end Behavioral;
