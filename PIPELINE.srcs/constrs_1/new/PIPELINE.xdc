@@ -49,12 +49,12 @@ set_property PACKAGE_PIN M14 [get_ports match]
 set_property IOSTANDARD LVCMOS33 [get_ports match]
 
 ##IO_L23N_T3_35
-#set_property PACKAGE_PIN M15 [get_ports {led[1]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {led[1]}]
+set_property PACKAGE_PIN M15 [get_ports {parse_success}]
+set_property IOSTANDARD LVCMOS33 [get_ports {parse_success}]
 
 ##IO_0_35
-#set_property PACKAGE_PIN G14 [get_ports {led[2]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {led[2]}]
+set_property PACKAGE_PIN G14 [get_ports {parse_fail}]
+set_property IOSTANDARD LVCMOS33 [get_ports {parse_fail}]
 
 ##IO_L3N_T0_DQS_AD1N_35
 #set_property PACKAGE_PIN D18 [get_ports {led[3]}]

@@ -18,7 +18,8 @@ entity VM is
         addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
         addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
-        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
+        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
+        parse_success, parse_fail : out std_logic);
 end VM;
 
 architecture Behavioral of VM is
@@ -66,7 +67,7 @@ architecture Behavioral of VM is
 	signal S_Byte_r, S_Set_r, S_Set_or_r, S_Obyte_r, S_Nany_r, S_Rset_r, S_Call_r : std_logic;  
 	
 	component controller port(
-	   clk, rst, end_sig, Set_r, set_table_data : in std_logic;
+	   clk, rst, parse_success, parse_fail, Set_r, set_table_data : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
        text_out_VM : out std_logic_vector(7 downto 0);
@@ -97,7 +98,7 @@ architecture Behavioral of VM is
     signal S_SP_F_fail_put, S_SP_F_fail_pop, S_SP_D_fail : std_logic_vector(15 downto 0);
 	
 	
-	signal S_read_8, S_write_8, S_read_stk, S_write_stk, S_read_fail_stk, S_write_fail_stk,
+	signal S_read_8, S_write_8, S_read_stk, S_s_read_stk, S_write_stk, S_read_fail_stk, S_s_read_fail_stk, S_write_fail_stk,
 	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record,
 	       S_read_set_table, S_write_set_table : std_logic;
 	
@@ -108,6 +109,8 @@ architecture Behavioral of VM is
 	signal test_mem_stk : std_logic_vector(31 downto 0);
 	
 	signal jump : std_logic;
+	
+	signal parse_success_reg, parse_fail_reg : std_logic := '0';
 	
 begin
 
@@ -156,7 +159,7 @@ begin
           clk => clk,
           rst => rst,
           s_inc => put_stk,
-          s_dcr => S_s_dcr,
+          s_dcr => S_s_read_stk,
           d => S_SP_D,
           f_put => S_SP_F_put,
           f_pop => S_SP_F_pop);
@@ -166,19 +169,53 @@ begin
           clk => clk,
           rst => rst,
           s_inc => put_fail_stk,
-          s_dcr => S_s_dcr_fail,
+          s_dcr => S_s_read_fail_stk,
           d => S_SP_D_fail,
           f_put => S_SP_F_fail_put,
           f_pop => S_SP_F_fail_pop);
-        
+    
     process(clk)
     begin
-        if(S_SP_F_pop = "1111111111111111" or S_SP_F_fail_pop = "1111111111111111") then    
-            end_sig <= '1';
-        else
-            end_sig <= '0';
+        if(clk'event and clk = '1') then    
+            if(S_read_fail_stk = '1') then
+                S_s_read_fail_stk <= '1';
+            else 
+                S_s_read_fail_stk <= '0';
+            end if;
         end if;
     end process;
+    
+    process(clk)
+    begin
+        if(clk'event and clk = '1') then
+            if((S_SP_F_fail_pop = "1111111111111111" and S_read_fail_stk = '1') 
+                or (mem_d_fail_stk_out = "00000000000000000000000000000000" and S_s_read_fail_stk = '1')) then    
+                parse_fail_reg <= '1';
+            end if;
+        end if;
+    end process;
+    
+    process(clk)
+    begin
+        if(clk'event and clk = '1') then    
+            if(S_read_stk = '1') then
+                S_s_read_stk <= '1';
+            else 
+                S_s_read_stk <= '0';
+            end if;
+        end if;
+    end process;
+    
+    process(clk)
+    begin
+        if(clk'event and clk = '1') then
+            if((S_SP_F_pop = "1111111111111111" and S_read_stk = '1') 
+                or (mem_d_stk_out = "00000000000000000000000000000000" and S_s_read_stk = '1')) then    
+                parse_success_reg <= '1';
+            end if;
+        end if;
+    end process;
+    
     --end_sig <= '1' when (S_SP_F = "0000000000000000") else '0';
 		 
 	op_decoder1 : op_decoder port map(
@@ -189,7 +226,8 @@ begin
 	controller1 : controller port map(
 	   clk => clk, 
 	   rst => rst,
-	   end_sig => end_sig,
+	   parse_success => parse_success_reg,
+	   parse_fail => parse_fail_reg,
 	   Set_r => S_Set_r,
 	   set_table_data => mem_d_set_table_out,
 	   instruction => mem_d_in,
@@ -280,6 +318,7 @@ begin
     addr2_first_record <= S_IR_F(7 downto 0);
     addr1_set_table <= S_text_out;
     addr2_set_table <= S_IR_F(7 downto 0);
-    
+    parse_success <= parse_success_reg;
+    parse_fail <= parse_fail_reg;
      
 end Behavioral;

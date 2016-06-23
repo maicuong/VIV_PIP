@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity controller is
 	port(
-	   clk, rst, end_sig, Set_r, set_table_data  : in std_logic;
+	   clk, rst, parse_success, parse_fail, Set_r, set_table_data  : in std_logic;
        instruction : in std_logic_vector(31 downto 0);
        text_in : in std_logic_vector(7 downto 0);
        text_out_VM : out std_logic_vector(7 downto 0);
@@ -47,7 +47,7 @@ architecture Behavioral of controller is
 	end component;
 	
 	component Ex 
-      Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Alt_r, Return_r, Succ_r, Oset_r,
+      Port (clk, parse_success, parse_fail, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Alt_r, Return_r, Succ_r, Oset_r,
             Oset_or_r, Str_first, Str_second, First_r, set_table_data : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
@@ -280,7 +280,8 @@ begin
 
 	Ex1 : Ex port map(
 	  clk => clk,
-	  end_sig => end_sig,
+	  parse_success => parse_success,
+	  parse_fail => parse_fail,
       Set_r => S_Set,
       Byte_r => S_Byte,
       Set_or_r => S_Set_or,

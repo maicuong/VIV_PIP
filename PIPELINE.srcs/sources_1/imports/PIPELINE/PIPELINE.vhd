@@ -4,7 +4,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity TEST is
     port(clk: in std_logic;
-		 match : out std_logic);
+		 match : out std_logic;
+		 parse_success, parse_fail : out std_logic);
 end TEST;
 
 architecture Behavioral of TEST is
@@ -24,7 +25,8 @@ architecture Behavioral of TEST is
 	   addr, addr_first_table : out std_logic_vector(31 downto 0);
        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
        addr1_first_record, addr2_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
-       mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
+       mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
+       parse_success, parse_fail : out std_logic);
 	end component;
 	
 	component MEMORY port(
@@ -103,6 +105,8 @@ architecture Behavioral of TEST is
     signal read_fail_stk, write_fail_stk : std_logic; 
     signal addr_in_fail_stk, addr_out_fail_stk : std_logic_vector(15 downto 0);  
     signal mem_d_fail_stk_in, mem_d_fail_stk_out : std_logic_vector(31 downto 0);
+    
+    signal S_parse_success, S_parse_fail : std_logic;
 
 begin
 	
@@ -144,7 +148,13 @@ begin
        addr1_set_table => addr1_set_table,
        addr2_set_table => addr2_set_table,
        mem_d_stk_in => mem_d_stk_in,
-       mem_d_fail_stk_in => mem_d_fail_stk_in);
+       mem_d_fail_stk_in => mem_d_fail_stk_in,
+       parse_success => S_parse_success,
+       parse_fail => S_parse_fail);
+       
+    parse_success <= S_parse_success;
+    parse_fail <= S_parse_fail;
+    
 	   
 	--match <= '1';
 	  
@@ -171,6 +181,8 @@ begin
        data_in => mem_d_stk_in,
        data_out => mem_d_stk_out);
        
+    --parse_success <= '1' when (addr_out_stk = "1111111111111111" or mem_d_stk_out = "00000000000000000000000000000000") else '0'; 
+       
 	MEMORY_FAIL : MEMORY_STK port map(
        read => read_fail_stk, 
        write => write_fail_stk, 
@@ -178,6 +190,8 @@ begin
        addr_out => addr_out_fail_stk, 
        data_in => mem_d_fail_stk_in,
        data_out => mem_d_fail_stk_out);
+    
+    --parse_fail <= '1' when (addr_out_fail_stk = "1111111111111111" or mem_d_fail_stk_out = "00000000000000000000000000000000") else '0';
        
     --FIRST_TABLE1 : FIRST_TABLE port map(
          --read => read_first_table,

@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity Ex is
- Port (clk, end_sig, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, Alt_r, Oset_r, 
+ Port (clk, parse_success, parse_fail, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, Alt_r, Oset_r, 
         Oset_or_r, Str_first, Str_second, First_r, Succ_r, set_table_data : in  std_logic;
         instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
@@ -295,10 +295,10 @@ begin
    S_set_match <= S_Set and set_table_data;
    S_set_fail <= S_Set and not set_table_data;
 
-    Next_ist <= S_set_match or S_byte_match  or S_obyte_match 
+    Next_ist <= (S_set_match or S_byte_match  or S_obyte_match 
         or S_rset_next_ist or S_Call or S_Return or S_Alt or S_oset_match 
-        or S_oset_or_match or S_str_match or S_First or S_Succ;
-    Fail <= (S_set_fail or S_byte_fail or S_str_fail) and not end_sig;
+        or S_oset_or_match or S_str_match or S_First or S_Succ) and not (parse_success or parse_fail);
+    Fail <= (S_set_fail or S_byte_fail or S_str_fail) and not (parse_success or parse_fail);
     Wait_text <= S_rset_next_text;
     Str_goto_next_text <= S_str_goto_next_text; 
     Next_text <= S_set_match or S_byte_match or S_set_or_match or S_obyte_next_text 
