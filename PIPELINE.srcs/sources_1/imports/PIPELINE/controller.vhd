@@ -174,10 +174,10 @@ begin
         trg => S_first_step2,
         next_trg => S_first_step3);        
             		 
-    First_step3 : d_ff port map(
-        clk => clk,
-        trg => S_first_step3,
-        next_trg => S_first_step4);
+    --First_step3 : d_ff port map(
+        --clk => clk,
+        --trg => S_first_step3,
+        --next_trg => S_first_step4);
 
 	ctl_sig1 : ctl_sig port map(
 	   f1 => S_f1,
@@ -294,7 +294,7 @@ begin
       Succ_r => S_Succ_cond1,
       Str_first => S_str_first,
       Str_second => S_str_second,
-      First_r => S_first_step3,
+      First_r => S_first_step2,
       set_table_data => set_table_data,
       instruction => nez_in_f,
       text_in => text_out_f,

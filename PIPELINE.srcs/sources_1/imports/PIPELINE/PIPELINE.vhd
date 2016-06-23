@@ -23,7 +23,7 @@ architecture Behavioral of TEST is
 	   addr_8 : out std_logic_vector(31 downto 0);
 	   addr, addr_first_table : out std_logic_vector(31 downto 0);
        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
-       addr1_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
+       addr1_first_record, addr2_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0));
 	end component;
 	
@@ -140,7 +140,7 @@ begin
        addr => addr,
        addr_first_table => addr_first_table,
        addr1_first_record => addr1_first_record,
-       --addr2_first_record => addr2_first_record,
+       addr2_first_record => addr2_first_record,
        addr1_set_table => addr1_set_table,
        addr2_set_table => addr2_set_table,
        mem_d_stk_in => mem_d_stk_in,
@@ -179,12 +179,12 @@ begin
        data_in => mem_d_fail_stk_in,
        data_out => mem_d_fail_stk_out);
        
-    FIRST_TABLE1 : FIRST_TABLE port map(
-         read => read_first_table,
-         write => write_first_table,
-         addr => addr_first_table,
-         data_in => data_in_first_table,
-         data_out => data_out_first_table);
+    --FIRST_TABLE1 : FIRST_TABLE port map(
+         --read => read_first_table,
+         --write => write_first_table,
+         --addr => addr_first_table,
+         --data_in => data_in_first_table,
+         --data_out => data_out_first_table);
          
    SET_TABLE1 : SET_TABLE port map(
       read => read_set_table,
@@ -205,7 +205,7 @@ begin
        data_out => data_out_first_record);
     
     data_in_first_record <= (others => '0');
-    addr2_first_record <= data_out_first_table;
+    --addr2_first_record <= data_out_first_table;
        
     check <= '1' when (mem_d_stk_out = "00000000000000000000000000010000") else '0';
 	match <= match_reg;

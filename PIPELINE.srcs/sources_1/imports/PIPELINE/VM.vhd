@@ -277,7 +277,9 @@ begin
     
     addr_first_table <= S_PR_F;
     addr1_first_record <= S_text_out;
+    addr2_first_record <= S_IR_F(7 downto 0);
     addr1_set_table <= S_text_out;
     addr2_set_table <= S_IR_F(7 downto 0);
+    
      
 end Behavioral;
