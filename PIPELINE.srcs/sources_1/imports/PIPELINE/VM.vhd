@@ -169,7 +169,7 @@ begin
           clk => clk,
           rst => rst,
           s_inc => put_fail_stk,
-          s_dcr => S_s_read_fail_stk,
+          s_dcr =>  S_s_read_fail_stk,
           d => S_SP_D_fail,
           f_put => S_SP_F_fail_put,
           f_pop => S_SP_F_fail_pop);

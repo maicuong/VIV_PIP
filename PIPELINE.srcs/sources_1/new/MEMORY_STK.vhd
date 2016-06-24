@@ -25,8 +25,11 @@ begin
 	
 	process(read, write)
 	begin
-		if(read = '1' and ADDR_REG >= 0 and ADDR_REG <= 50) then
+	   if(read = '1' and addr_out = "1111111111111111") then
+	       data_out <= (others => '0');
+		elsif(read = '1' and ADDR_REG >= 0 and ADDR_REG <= 50) then
 			data_out <= RAM(ADDR_REG);
+			--RAM(ADDR_REG) <= (others => '0');
 		elsif(write = '1') then
 			RAM(CONV_INTEGER(addr_in)) <= data_in;
 			
