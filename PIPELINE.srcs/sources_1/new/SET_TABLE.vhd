@@ -11,7 +11,7 @@ entity SET_TABLE is
 end SET_TABLE;
 
 architecture RTL of SET_TABLE is  
-  type ram_type is array (10 downto 0, 5 downto 0) of std_logic; 
+  type ram_type is array (20 downto 0, 5 downto 0) of std_logic; 
     signal RAM : ram_type := (others => (others => '0')) ; 
     signal addr_column, addr_line1, addr_line2, addr_line3, addr_line4 : std_logic_vector(7 downto 0);
 begin
@@ -22,15 +22,23 @@ begin
     --addr_line3 <= "00000110";
     --addr_line4 <= "00000000";
 	
-	RAM(4,3) <=  '1';
-	RAM(5,3) <=  '1';
-	RAM(6,3) <=  '1';
-	RAM(7,3) <=  '1';
+	RAM(16,0) <=  '1';
+	RAM(17,0) <=  '1';
 	
+	RAM(18,1) <=  '1';
+	RAM(19,1) <=  '1';
+	
+	--RAM(0,2) <= '1';
+	RAM(1,2) <= '1';
 	RAM(2,2) <= '1';
 	RAM(3,2) <= '1';
-	RAM(4,2) <= '1';
-	
+    RAM(4,2) <= '1';
+    RAM(5,2) <= '1';
+	RAM(6,2) <= '1';
+    RAM(7,2) <= '1';
+    RAM(8,2) <= '1';
+    RAM(9,2) <= '1';
+    
 	
 	process(read, write)
 	begin

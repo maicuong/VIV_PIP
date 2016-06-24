@@ -11,7 +11,7 @@ entity FIRST_RECORD is
 end FIRST_RECORD;
 
 architecture RTL of FIRST_RECORD is  
-  type ram_type is array (10 downto 0, 5 downto 0) of std_logic_vector (7 downto 0); 
+  type ram_type is array (20 downto 0, 5 downto 0) of std_logic_vector (7 downto 0); 
     signal RAM : ram_type ; 
     signal addr_column, addr_line1, addr_line2, addr_line3, addr_line4 : std_logic_vector(7 downto 0);
 begin
@@ -22,10 +22,27 @@ begin
     --addr_line3 <= "00000110";
     --addr_line4 <= "00000000";
 	
-	RAM(8,1) <=  "00000100";
-	RAM(7,1) <=  "00000101";
-	RAM(9,1) <=  "00000110";
-	RAM(0,3) <=  "00001000";
+	RAM(0,0) <=  "00011001";
+	RAM(1,0) <=  "00011001";
+	RAM(2,0) <=  "00011001";
+	RAM(3,0) <=  "00011001";
+	RAM(4,0) <=  "00011001";
+	RAM(5,0) <=  "00011001";
+	RAM(6,0) <=  "00011001";
+	RAM(7,0) <=  "00011001";
+	RAM(8,0) <=  "00011001";
+	RAM(9,0) <=  "00011001";
+	RAM(10,0) <=  "00001000";
+	RAM(11,0) <=  "00001000";
+	RAM(12,0) <=  "00001000";
+	RAM(13,0) <=  "00001000";
+	RAM(14,0) <=  "00010001";
+	RAM(15,0) <=  "00001000";
+	RAM(16,0) <=  "00001000";
+	RAM(17,0) <=  "00001000";
+	RAM(18,0) <=  "00001000";
+	RAM(19,0) <=  "00001000";
+
 	
 	process(read, write)
 	begin
