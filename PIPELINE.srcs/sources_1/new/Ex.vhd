@@ -141,6 +141,7 @@ signal S_obyte_match, S_obyte_next_text : std_logic;
 signal S_nany_match, S_nany_fail : std_logic;
 signal S_rset_next_ist, S_rset_next_text : std_logic;
 signal S_call, S_Return, S_Alt, S_First, S_Succ, S_Set, S_Pass, S_Skip : std_logic;
+signal S_s_set, S_rset, S_oset : std_logic;
 signal S_oset_match, S_oset_next_text : std_logic;
 signal S_oset_or_match, S_oset_or_next_text : std_logic;
 signal S_str_goto_next_text, S_str_match, S_str_fail : std_logic;
@@ -181,7 +182,7 @@ begin
 
 	Rset1 : Rset port map(
 	       CLK => clk,
-           TRG => Rset_r,
+           TRG => S_rset,
            --TEXT_IN => text_in, 
            --NEZ_IN => instruction(15 downto 0),
            set_table_data => set_table_data,
@@ -191,7 +192,7 @@ begin
            
      Oset1 : Oset port map(
            CLK => clk,
-           TRG => OSet_r,
+           TRG => S_oset,
            --TEXT_IN => text_in,
            --NEZ_IN => instruction(15 downto 0),
            set_table_data => set_table_data,
@@ -285,6 +286,17 @@ begin
    process(clk)
       begin
         if(clk'event and clk = '1') then
+           if(S_set = '1') then
+              S_s_set <= '1';
+           else
+              S_s_set <= '0';
+           end if;
+        end if;
+   end process;
+   
+   process(clk)
+      begin
+        if(clk'event and clk = '1') then
            if(Pass_r = '1') then
               S_Pass <= '1';
            else
@@ -304,6 +316,28 @@ begin
         end if;
    end process;
    
+   process(clk)
+      begin
+        if(clk'event and clk = '1') then
+           if(Rset_r = '1') then
+              S_Rset <= '1';
+           else
+              S_Rset <= '0';
+           end if;
+        end if;
+   end process;
+   
+   process(clk)
+      begin
+        if(clk'event and clk = '1') then
+           if(Oset_r = '1') then
+              S_Oset <= '1';
+           else
+              S_Oset <= '0';
+           end if;
+        end if;
+   end process;
+   
    --process(clk)
       --begin
         --if(clk'event and clk = '1') then
@@ -318,8 +352,8 @@ begin
         --end if;
    --end process;
    
-   S_set_match <= S_Set and set_table_data;
-   S_set_fail <= S_Set and not set_table_data;
+   S_set_match <= S_s_Set and set_table_data;
+   S_set_fail <= S_s_Set and not set_table_data;
 
     Next_ist <= (S_set_match or S_byte_match  or S_obyte_match 
         or S_rset_next_ist or S_Call or S_Return or S_Alt or S_oset_match 

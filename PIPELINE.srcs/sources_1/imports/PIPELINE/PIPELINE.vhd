@@ -205,7 +205,7 @@ begin
     
          
    SET_TABLE1 : SET_TABLE port map(
-      clk => clk,
+      clk => bus_clk,
       read => read_set_table,
       write => write_set_table,
       addr1 => addr1_set_table,
