@@ -12,7 +12,7 @@ entity MEMORY_STK is
 end MEMORY_STK;
 
 architecture RTL of MEMORY_STK is
-  type ram_type is array (255 downto 0) of std_logic_vector (31 downto 0); 
+  type ram_type is array (50 downto 0) of std_logic_vector (31 downto 0); 
     signal RAM : ram_type := (others => (others => '0'));--:= ("00000000000000000000000000010000", "00000000000000000000000000010000", "00000000000000000000000000010000", "00000000000000000000000000010000"); 
     signal ADDR_REG : integer ; 
 begin

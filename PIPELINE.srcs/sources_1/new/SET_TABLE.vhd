@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity SET_TABLE is
-		port (read, write : in std_logic;
+		port (clk, read, write : in std_logic;
 			 addr1, addr2 : in std_logic_vector(7 downto 0);
 		     data_in : in std_logic;
 			 data_out : out std_logic);
@@ -40,8 +40,9 @@ begin
     RAM(9,2) <= '1';
     
 	
-	process(read, write)
+	process(clk)
 	begin
+	   if(clk'event and clk = '1') then
 		if(read = '1') then
 			--data_out <= "00000101"; --RAM(CONV_INTEGER(addr1),CONV_INTEGER(addr2));
 			data_out <= RAM(CONV_INTEGER(addr1),CONV_INTEGER(addr2));
@@ -50,6 +51,7 @@ begin
 			
 		--else
 			--data <= (others => '0');
+		end if;
 		end if;
 	end process;
 	

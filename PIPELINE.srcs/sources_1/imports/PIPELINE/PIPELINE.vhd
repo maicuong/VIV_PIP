@@ -68,7 +68,7 @@ architecture Behavioral of TEST is
     end component;
     
     component SET_TABLE
-            port (read, write : in std_logic;
+            port (clk, read, write : in std_logic;
                  addr1, addr2 : in std_logic_vector(7 downto 0);
                  data_in : in std_logic;
                  data_out : out std_logic);
@@ -205,6 +205,7 @@ begin
     
          
    SET_TABLE1 : SET_TABLE port map(
+      clk => clk,
       read => read_set_table,
       write => write_set_table,
       addr1 => addr1_set_table,
