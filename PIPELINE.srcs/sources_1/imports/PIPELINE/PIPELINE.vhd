@@ -186,7 +186,7 @@ begin
 	   data => mem_d_8_in);
 	   
 	MEMORY_RETURN : MEMORY_STK port map(
-	   clk => clk,
+	   clk => bus_clk,
        read => read_stk, 
        write => write_stk, 
        addr_in => addr_in_stk,
@@ -195,7 +195,7 @@ begin
        data_out => mem_d_stk_out);
        
 	MEMORY_FAIL : MEMORY_STK port map(
-	   clk => clk,
+	   clk => bus_clk,
        read => read_fail_stk, 
        write => write_fail_stk, 
        addr_in => addr_in_fail_stk,
