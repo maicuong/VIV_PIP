@@ -34,7 +34,7 @@ architecture Behavioral of controller is
 	signal S_Return_cond1, S_Return_cond2, S_Return_cond3 : std_logic;
 	signal S_str_goto_next_text_cond : std_logic;
 	signal S_jump_D, S_jump, S_jump_ok, S_s_jump_ok : std_logic;
-	signal S_first_step1, S_first_step2, S_first_step3, S_first_step4 : std_logic;
+	signal S_first_step1, S_first_step2, S_first_step3, S_first_step4, S_first_step_insert : std_logic;
 	signal S_Succ_cond1, S_Succ_cond2, S_Succ_cond3 : std_logic;
 	
 	component ctl_sig  port(
@@ -182,7 +182,12 @@ begin
     First_step1 : d_ff port map(
         clk => clk,
         trg => S_first_step1,
-        next_trg => S_first_step2);
+        next_trg => S_first_step_insert);
+        
+    First_step_insert : d_ff port map(
+            clk => clk,
+            trg => S_first_step_insert,
+            next_trg => S_first_step2);    
         
     S_first_step1 <= S_first;
 
@@ -210,9 +215,9 @@ begin
 	   Succ_step2 => S_Succ_cond1,
 	   Jump => S_jump_ok,
 	   First_step1 => S_first_step1,
-	   First_step2 => S_first_step2,
-	   First_step3 => S_first_step3,
-	   First_step4 => S_first_step4,
+	   First_step2 => S_first_step_insert,
+	   First_step3 => S_first_step2,
+	   First_step4 => S_first_step3,
 	   Set_r => S_Set,
 	   Rset_r => S_Rset,
 	   Oset_r => S_Oset,

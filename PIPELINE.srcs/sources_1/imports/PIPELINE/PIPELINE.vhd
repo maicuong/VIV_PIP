@@ -61,7 +61,7 @@ architecture Behavioral of TEST is
     --end component;
     
     component FIRST_RECORD 
-            port (read, write : in std_logic;
+            port (clk, read, write : in std_logic;
                  addr1, addr2 : in std_logic_vector(7 downto 0);
                  data_in : in std_logic_vector(7 downto 0);
                  data_out : out std_logic_vector(7 downto 0));
@@ -216,6 +216,7 @@ begin
     data_in_first_table <= (others => '0');
     
     FIRST_RECORD1 : FIRST_RECORD port map(
+       clk => bus_clk,
        read => read_first_record,
        write => write_first_record,
        addr1 => addr1_first_record,

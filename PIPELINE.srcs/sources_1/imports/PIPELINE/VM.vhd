@@ -100,7 +100,7 @@ architecture Behavioral of VM is
 	
 	
 	signal S_read_8, S_write_8, S_read_stk, S_s_read_stk, S_s_read_stk1, S_write_stk, S_read_fail_stk, S_s_read_fail_stk, S_s_read_fail_stk1, S_write_fail_stk,
-	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record,
+	       S_read_first_table, S_write_first_table, S_read_first_record, S_s_read_first_record, S_write_first_record,
 	       S_read_set_table, S_write_set_table : std_logic;
 	
 	signal S_dec : std_logic;
@@ -141,10 +141,21 @@ begin
 	
 	S_BUS_C <= "000000000000000000000000" & mem_d_in(7 downto 0) when (put_stk = '1') else
 	           "000000000000000000000000" & mem_d_in(23 downto 16) when (jump = '1') else 
-	           "000000000000000000000000" & mem_d_first_record_out when (S_read_first_record = '1') else 
+	           "000000000000000000000000" & mem_d_first_record_out when (S_s_read_first_record = '1') else 
 	           mem_d_fail_stk_out when (S_s_read_fail_stk = '1') else
 	           mem_d_stk_out when (S_s_read_stk = '1')    
 	           else (others => '0');
+	           
+	process(clk)
+	begin
+	   if(clk'event and clk = '1') then
+	       if(S_read_first_record = '1') then
+	           S_s_read_first_record <= '1';
+	       else
+	           S_s_read_first_record <= '0';
+	       end if;
+	   end if;
+    end process;
 		 
 	TR : rw_counter_16 port map (
 	   --lat => S_TRlat,

@@ -24,8 +24,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1, Call_cond, fail_step2, Return_step2, Jump, First_step1) begin
-		if(f1 = '1' or Call_cond = '1' or fail_step2 = '1' or Return_step2 = '1' or Jump = '1' or First_step1 = '1') then	
+		process(f1, Call_cond, fail_step2, Return_step2, Jump, First_step2) begin
+		if(f1 = '1' or Call_cond = '1' or fail_step2 = '1' or Return_step2 = '1' or Jump = '1' or First_step2 = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';
