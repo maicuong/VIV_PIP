@@ -1,6 +1,8 @@
 library IEEE;
+library UNISIM;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use UNISIM.Vcomponents.ALL;
 
 entity TEST is
     port(clk: in std_logic;
@@ -22,7 +24,8 @@ architecture Behavioral of TEST is
 	   read_set_table, write_set_table : out std_logic;
 	   S_fail, S_match : out std_logic;
 	   addr_8 : out std_logic_vector(31 downto 0);
-	   addr, addr_first_table : out std_logic_vector(31 downto 0);
+	   addr : out std_logic_vector(7 downto 0);
+	   addr_first_table : out std_logic_vector(31 downto 0);
        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
        addr1_first_record, addr2_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
@@ -30,9 +33,10 @@ architecture Behavioral of TEST is
 	end component;
 	
 	component MEMORY port(
-	   read, write, rst : in std_logic;
-	   addr : in std_logic_vector(31 downto 0);
-	   data : inout std_logic_vector(31 downto 0));
+	   clk, read, write, rst : in std_logic;
+	   addr : in std_logic_vector(7 downto 0);
+	   data_in : in std_logic_vector(31 downto 0);
+	   data_out : out std_logic_vector(31 downto 0));
 	end component;
 	
 	component MEMORY_8 port(
@@ -48,12 +52,13 @@ architecture Behavioral of TEST is
        data_out : out std_logic_vector(31 downto 0));
     end component;
 
-    component FIRST_TABLE 
-		port (read, write : in std_logic;
-			 addr : in std_logic_vector(31 downto 0);
-		     data_in : in std_logic_vector(7 downto 0);
-			 data_out : out std_logic_vector(7 downto 0));
-    end component;
+    --component FIRST_TABLE 
+    --Port ( CLK : in std_logic;
+          -- DIN : in std_logic_vector(7 downto 0);
+          -- DOUT : out std_logic_vector(7 downto 0);
+          -- WR : in std_logic;
+          -- ADDR_IN : in std_logic_vector(8 downto 0));
+    --end component;
     
     component FIRST_RECORD 
             port (read, write : in std_logic;
@@ -76,9 +81,10 @@ architecture Behavioral of TEST is
     signal addr1_set_table, addr2_set_table : std_logic_vector(7 downto 0); 
     signal data_in_set_table, data_out_set_table : std_logic;
 
-	signal mem_d_in : std_logic_vector(31 downto 0);
+	signal mem_d_in, mem_d_out : std_logic_vector(31 downto 0);
 	signal read,write : std_logic;
-	signal addr, addr_8, addr_first_table, mem_d_out : std_logic_vector(31 downto 0);
+	signal addr : std_logic_vector(7 downto 0);
+	signal addr_8, addr_first_table: std_logic_vector(31 downto 0);
 	
 	signal mem_d_8_in : std_logic_vector(7 downto 0);
 	signal read_8,write_8 : std_logic;
@@ -107,6 +113,69 @@ architecture Behavioral of TEST is
     signal mem_d_fail_stk_in, mem_d_fail_stk_out : std_logic_vector(31 downto 0);
     
     signal S_parse_success, S_parse_fail : std_logic;
+    
+    signal addr_first_table_test, addr_first_table_test_1 : std_logic_vector(8 downto 0); 
+    signal data_in_first_table_test, data_in_first_table_test_1, data_out_first_table_test, data_out_first_table_test_1  : std_logic_vector(7 downto 0);
+    
+    
+    
+      component RAMB4_S8
+      port (DI     : in STD_LOGIC_VECTOR (7 downto 0);
+            EN     : in STD_ULOGIC;
+            WE     : in STD_ULOGIC;
+            RST    : in STD_ULOGIC;
+            CLK    : in STD_ULOGIC;
+            ADDR   : in STD_LOGIC_VECTOR (8 downto 0);
+            DO     : out STD_LOGIC_VECTOR (7 downto 0)
+      ); 
+    end component;
+    
+component blk_mem_gen_0 
+  PORT (
+  clka : IN STD_LOGIC;
+  ena : IN STD_LOGIC;
+  wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+  addra : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+  dina : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+  douta : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+  clkb : IN STD_LOGIC;
+  enb : IN STD_LOGIC;
+  web : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+  addrb : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+  dinb : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+  doutb : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+);
+    END component;
+
+signal   wea : STD_LOGIC_VECTOR(0 DOWNTO 0);
+signal   addra :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal   dina, douta, doutb :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+
+ component BRAM_v
+      port (din     : in STD_LOGIC_VECTOR (15 downto 0);
+            we     : in STD_ULOGIC;
+            CLK    : in STD_ULOGIC;
+            ADDR   : in STD_LOGIC_VECTOR (4 downto 0);
+            dout     : out STD_LOGIC_VECTOR (15 downto 0)
+      ); 
+ end component;
+
+signal addr_bram_v : std_logic_vector(4 downto 0);
+signal wr : std_logic;
+
+component FIRST_TABLE is
+    port(
+        clk, reset : in std_logic;
+        wr : in std_logic;
+        dad : in std_logic_vector(8 downto 0);
+        ini : in std_logic_vector(31 downto 0);
+        dout : out std_logic_vector(31 downto 0));
+end component;
+
+ signal  wr2, wr3    :  STD_LOGIC;
+ signal reset    :  STD_LOGIC;
+ signal dad, dad2, dad3   :  STD_LOGIC_VECTOR (8 downto 0);
+ signal ini, ini2, ini3, dout, dout2, dout3     :  STD_LOGIC_VECTOR (31 downto 0);
 
 begin
 	
@@ -160,11 +229,14 @@ begin
 	  
 	
 	MEMORY1 : MEMORY port map(
+	   clk => bus_clk,
 	   read => read, 
-	   write => write, 
+	   write => write,
+	   --write => rst, 
 	   rst => rst,
 	   addr => addr, 
-	   data => mem_d_in);
+	   data_in => mem_d_out,
+	   data_out => mem_d_in);
 	   
 	MEMORY2 : MEMORY_8 port map(
 	   read => read_8, 
@@ -181,8 +253,6 @@ begin
        data_in => mem_d_stk_in,
        data_out => mem_d_stk_out);
        
-    --parse_success <= '1' when (addr_out_stk = "1111111111111111" or mem_d_stk_out = "00000000000000000000000000000000") else '0'; 
-       
 	MEMORY_FAIL : MEMORY_STK port map(
        read => read_fail_stk, 
        write => write_fail_stk, 
@@ -191,14 +261,6 @@ begin
        data_in => mem_d_fail_stk_in,
        data_out => mem_d_fail_stk_out);
     
-    --parse_fail <= '1' when (addr_out_fail_stk = "1111111111111111" or mem_d_fail_stk_out = "00000000000000000000000000000000") else '0';
-       
-    --FIRST_TABLE1 : FIRST_TABLE port map(
-         --read => read_first_table,
-         --write => write_first_table,
-         --addr => addr_first_table,
-         --data_in => data_in_first_table,
-         --data_out => data_out_first_table);
          
    SET_TABLE1 : SET_TABLE port map(
       read => read_set_table,
@@ -245,5 +307,6 @@ begin
 			end if;
 		end if;
 	end process;  
+	
 			
 end Behavioral;

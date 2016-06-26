@@ -14,7 +14,8 @@ entity VM is
         read_set_table, write_set_table : out std_logic;
         S_fail, S_match : out std_logic;
         addr_8 : out std_logic_vector(31 downto 0);
-        addr, addr_first_table : out std_logic_vector(31 downto 0);
+        addr : out std_logic_vector(7 downto 0);
+         addr_first_table : out std_logic_vector(31 downto 0);
         addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
         addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
@@ -138,8 +139,8 @@ begin
 	   --end if;
 	--end process;          
 	
-	S_BUS_C <= "000000000000000000000000" & S_IR_F(7 downto 0) when (put_stk = '1') else
-	           "000000000000000000000000" & S_IR_F(23 downto 16) when (jump = '1') else 
+	S_BUS_C <= "000000000000000000000000" & mem_d_in(7 downto 0) when (put_stk = '1') else
+	           "000000000000000000000000" & mem_d_in(23 downto 16) when (jump = '1') else 
 	           "000000000000000000000000" & mem_d_first_record_out when (S_read_first_record = '1') else 
 	           mem_d_fail_stk_out when (S_read_fail_stk = '1') else
 	           mem_d_stk_out when (S_read_stk = '1')    
@@ -218,10 +219,10 @@ begin
     
     --end_sig <= '1' when (S_SP_F = "0000000000000000") else '0';
 		 
-	op_decoder1 : op_decoder port map(
-          Op => mem_d_in(31 downto 24), ---
-          trg => clk,
-          Set_r => S_Set_r);
+	--op_decoder1 : op_decoder port map(
+          --Op => mem_d_in(31 downto 24), ---
+          --trg => clk,
+          --Set_r => S_Set_r);
 		 
 	controller1 : controller port map(
 	   clk => clk, 
@@ -283,7 +284,7 @@ begin
 	
 	read <= S_read;
 	write <= S_write;
-	addr <= S_PR_F;
+	addr <= S_PR_F(7 downto 0);
 	read_8 <= S_s_t_inc;
 	write_8 <= S_write_8;
 	addr_8 <= S_TR_F;
@@ -315,9 +316,9 @@ begin
     
     addr_first_table <= S_PR_F;
     addr1_first_record <= S_text_out;
-    addr2_first_record <= S_IR_F(7 downto 0);
+    addr2_first_record <= mem_d_in(7 downto 0);
     addr1_set_table <= S_text_out;
-    addr2_set_table <= S_IR_F(7 downto 0);
+    addr2_set_table <= mem_d_in(7 downto 0);
     parse_success <= parse_success_reg;
     parse_fail <= parse_fail_reg;
      

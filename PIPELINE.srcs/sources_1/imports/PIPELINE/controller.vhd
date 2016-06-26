@@ -305,7 +305,7 @@ begin
       set_table_data => set_table_data,
       Pass_r => S_Pass,
       Skip_r => S_Skip,
-      instruction => nez_in_f,
+      instruction => instruction(15 downto 0),
       text_in => text_out_f,
       Wait_text => S_wait_text_D,
       Str_goto_next_text => S_str_goto_next_text,
