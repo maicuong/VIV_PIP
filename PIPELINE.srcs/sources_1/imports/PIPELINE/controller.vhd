@@ -31,11 +31,11 @@ architecture Behavioral of controller is
 	signal S_wait_text_D, S_wait_text, S_s_wait_text : std_logic;
 	signal S_next_text_D, S_next_text : std_logic;
 	signal Call_cond, Alt_cond : std_logic;
-	signal S_Return_cond1, S_Return_cond2 : std_logic;
+	signal S_Return_cond1, S_Return_cond2, S_Return_cond3 : std_logic;
 	signal S_str_goto_next_text_cond : std_logic;
 	signal S_jump_D, S_jump, S_jump_ok, S_s_jump_ok : std_logic;
 	signal S_first_step1, S_first_step2, S_first_step3, S_first_step4 : std_logic;
-	signal S_Succ_cond1, S_Succ_cond2 : std_logic;
+	signal S_Succ_cond1, S_Succ_cond2, S_Succ_cond3 : std_logic;
 	
 	component ctl_sig  port(
 	   f1, Call_r, Call_cond, Alt_r, Alt_cond, fail_step1, fail_step2, 
@@ -122,7 +122,12 @@ begin
 	Fail2 : d_ff port map(
            clk => clk,
            trg => S_fail_cond1,
-           next_trg => S_fail_cond);
+           next_trg => S_fail_cond2);
+           
+	Fail3 : d_ff port map(
+          clk => clk,
+          trg => S_fail_cond2,
+          next_trg => S_fail_cond);
            
 	Return1 : d_ff port map(
           clk => clk,
@@ -133,6 +138,11 @@ begin
           clk => clk,
           trg => S_Return_cond1,
           next_trg => S_Return_cond2);
+          
+	Return3 : d_ff port map(
+          clk => clk,
+          trg => S_Return_cond2,
+          next_trg => S_Return_cond3);
    
    	Succ1 : d_ff port map(
          clk => clk,
@@ -143,6 +153,11 @@ begin
          clk => clk,
          trg => S_Succ_cond1,
          next_trg => S_Succ_cond2);            
+  
+	Succ3 : d_ff port map(
+         clk => clk,
+         trg => S_Succ_cond2,
+         next_trg => S_Succ_cond3);        
                   
     Call : d_ff port map(
         clk => clk,
@@ -297,8 +312,8 @@ begin
       Alt_r => Alt_cond,
       Oset_r => S_Oset,
       Oset_or_r => S_Oset_or,
-      Return_r => S_Return_cond1,
-      Succ_r => S_Succ_cond1,
+      Return_r => S_Return_cond2,
+      Succ_r => S_Succ_cond2,
       Str_first => S_str_first,
       Str_second => S_str_second,
       First_r => S_first_step2,

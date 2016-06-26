@@ -16,7 +16,7 @@ entity VM is
         addr_8 : out std_logic_vector(31 downto 0);
         addr : out std_logic_vector(7 downto 0);
          addr_first_table : out std_logic_vector(31 downto 0);
-        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(15 downto 0);
+        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(7 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
         addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
         mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
@@ -99,7 +99,7 @@ architecture Behavioral of VM is
     signal S_SP_F_fail_put, S_SP_F_fail_pop, S_SP_D_fail : std_logic_vector(15 downto 0);
 	
 	
-	signal S_read_8, S_write_8, S_read_stk, S_s_read_stk, S_write_stk, S_read_fail_stk, S_s_read_fail_stk, S_write_fail_stk,
+	signal S_read_8, S_write_8, S_read_stk, S_s_read_stk, S_s_read_stk1, S_write_stk, S_read_fail_stk, S_s_read_fail_stk, S_s_read_fail_stk1, S_write_fail_stk,
 	       S_read_first_table, S_write_first_table, S_read_first_record, S_write_first_record,
 	       S_read_set_table, S_write_set_table : std_logic;
 	
@@ -142,8 +142,8 @@ begin
 	S_BUS_C <= "000000000000000000000000" & mem_d_in(7 downto 0) when (put_stk = '1') else
 	           "000000000000000000000000" & mem_d_in(23 downto 16) when (jump = '1') else 
 	           "000000000000000000000000" & mem_d_first_record_out when (S_read_first_record = '1') else 
-	           mem_d_fail_stk_out when (S_read_fail_stk = '1') else
-	           mem_d_stk_out when (S_read_stk = '1')    
+	           mem_d_fail_stk_out when (S_s_read_fail_stk = '1') else
+	           mem_d_stk_out when (S_s_read_stk = '1')    
 	           else (others => '0');
 		 
 	TR : rw_counter_16 port map (
@@ -160,7 +160,7 @@ begin
           clk => clk,
           rst => rst,
           s_inc => put_stk,
-          s_dcr => S_s_read_stk,
+          s_dcr => S_s_read_stk1,
           d => S_SP_D,
           f_put => S_SP_F_put,
           f_pop => S_SP_F_pop);
@@ -170,7 +170,7 @@ begin
           clk => clk,
           rst => rst,
           s_inc => put_fail_stk,
-          s_dcr =>  S_s_read_fail_stk,
+          s_dcr =>  S_s_read_fail_stk1,
           d => S_SP_D_fail,
           f_put => S_SP_F_fail_put,
           f_pop => S_SP_F_fail_pop);
@@ -188,9 +188,20 @@ begin
     
     process(clk)
     begin
+        if(clk'event and clk = '1') then    
+            if(S_s_read_fail_stk = '1') then
+                S_s_read_fail_stk1 <= '1';
+            else 
+                S_s_read_fail_stk1 <= '0';
+            end if;
+        end if;
+    end process;
+    
+    process(clk)
+    begin
         if(clk'event and clk = '1') then
             if((S_SP_F_fail_pop = "1111111111111111" and S_read_fail_stk = '1') 
-                or (mem_d_fail_stk_out = "00000000000000000000000000000000" and S_s_read_fail_stk = '1')) then    
+                or (mem_d_fail_stk_out = "00000000000000000000000000000000" and S_s_read_fail_stk1 = '1')) then    
                 parse_fail_reg <= '1';
             end if;
         end if;
@@ -206,12 +217,23 @@ begin
             end if;
         end if;
     end process;
+
+    process(clk)
+    begin
+        if(clk'event and clk = '1') then    
+            if(S_s_read_stk = '1') then
+                S_s_read_stk1 <= '1';
+            else 
+                S_s_read_stk1 <= '0';
+            end if;
+        end if;
+    end process;
     
     process(clk)
     begin
         if(clk'event and clk = '1') then
             if((S_SP_F_pop = "1111111111111111" and S_read_stk = '1') 
-                or (mem_d_stk_out = "00000000000000000000000000000000" and S_s_read_stk = '1')) then    
+                or (mem_d_stk_out = "00000000000000000000000000000000" and S_s_read_stk1 = '1')) then    
                 parse_success_reg <= '1';
             end if;
         end if;
@@ -299,15 +321,15 @@ begin
     read_set_table <= S_read_set_table;
     write_set_table <= S_write_set_table;
     
-    addr_in_stk <= S_SP_F_put; --when (S_write_stk = '1') else
-    addr_out_stk <= S_SP_F_pop; -- when (S_read_stk = '1') else (others => '0');
+    addr_in_stk <= S_SP_F_put(7 downto 0); --when (S_write_stk = '1') else
+    addr_out_stk <= S_SP_F_pop(7 downto 0); -- when (S_read_stk = '1') else (others => '0');
                 
     --process(S_write_fail_stk, S_read_fail_stk)
     --begin
         --if(S_write_fail_stk = '1') then
-            addr_in_fail_stk <= S_SP_F_fail_put;
+            addr_in_fail_stk <= S_SP_F_fail_put(7 downto 0);
         --elsif(S_read_fail_stk = '1') then
-            addr_out_fail_stk <= S_SP_F_fail_pop;
+            addr_out_fail_stk <= S_SP_F_fail_pop(7 downto 0);
         --end if;
     --end process;
                 

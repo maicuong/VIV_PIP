@@ -24,8 +24,8 @@ begin
 	end process;
 	
 	---PRlatch
-		process(f1, Call_cond, fail_step1, Return_step1, Jump, First_step1) begin
-		if(f1 = '1' or Call_cond = '1' or fail_step1 = '1' or Return_step1 = '1' or Jump = '1' or First_step1 = '1') then	
+		process(f1, Call_cond, fail_step2, Return_step2, Jump, First_step1) begin
+		if(f1 = '1' or Call_cond = '1' or fail_step2 = '1' or Return_step2 = '1' or Jump = '1' or First_step1 = '1') then	
 			PRlat <= '1';
 		else
 			PRlat <= '0';
@@ -61,16 +61,16 @@ begin
     end process;
     
 ---SPlat
-        process(Call_cond, Return_step1) begin
-            if(Call_cond = '1' or Return_step1 = '1') then    
+        process(Call_cond, Return_step2) begin
+            if(Call_cond = '1' or Return_step2 = '1') then    
                 SPlat <= '1';
             else
                 SPlat <= '0';
             end if;
         end process;
 
-        process(Alt_cond, fail_step1, Succ_step1) begin
-            if(Alt_cond = '1' or fail_step1 = '1' or Succ_step1 = '1') then    
+        process(Alt_cond, fail_step2, Succ_step2) begin
+            if(Alt_cond = '1' or fail_step2 = '1' or Succ_step2 = '1') then    
                 SPlat_fail <= '1';
             else
                 SPlat_fail <= '0';
@@ -96,9 +96,9 @@ begin
          end if;
           end process;
 
-        process(fail_step1, Succ_step1)
+        process(fail_step2, Succ_step2)
         begin
-       if(fail_step1 = '1' or Succ_step1 = '1') then    
+       if(fail_step2 = '1' or Succ_step2 = '1') then    
             s_dcr_fail <= '1';
         else
             s_dcr_fail <= '0';
@@ -106,9 +106,9 @@ begin
          end process;
          
          
-        process(Return_step1)
+        process(Return_step2)
          begin
-        if(Return_step1 = '1') then    
+        if(Return_step2 = '1') then    
              s_dcr <= '1';
          else
              s_dcr <= '0';
