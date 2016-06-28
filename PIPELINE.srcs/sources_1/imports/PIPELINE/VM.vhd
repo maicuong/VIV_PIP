@@ -16,7 +16,7 @@ entity VM is
         addr_8 : out std_logic_vector(31 downto 0);
         addr : out std_logic_vector(7 downto 0);
          addr_first_table : out std_logic_vector(31 downto 0);
-        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(7 downto 0);
+        addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(10 downto 0);
         addr1_first_record, addr2_first_record : out std_logic_vector(7 downto 0);
         addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
         mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
@@ -87,7 +87,7 @@ architecture Behavioral of VM is
 	signal S_IR_F : std_logic_vector(31 downto 0);
 	
 	---TR
-	signal S_TRlat, S_s_t_inc : std_logic;
+	signal S_TRlat, S_s_t_inc, s_t_inc : std_logic;
 	signal S_TR_F : std_logic_vector(31 downto 0);
 	
 	signal S_text_in, S_text_out : std_logic_vector(7 downto 0);
@@ -159,12 +159,23 @@ begin
 		 
 	TR : rw_counter_16 port map (
 	   --lat => S_TRlat,
-	   lat => S_s_t_inc,
+	   lat => s_t_inc,
 	   clk => clk,
 	   rst => rst,
-	   s_inc => S_s_t_inc,
+	   s_inc => s_t_inc,
 	   d => (others => '0'),
 	   f => S_TR_F);
+	   
+    process(clk)
+       begin
+           if(clk'event and clk = '1') then    
+               if(S_s_t_inc = '1') then
+                   s_t_inc <= '1';
+               else 
+                   s_t_inc <= '0';
+               end if;
+           end if;
+       end process;
 		 
 	SP_RETURN : sp_reg port map (
           lat => S_SPlat,
@@ -332,15 +343,15 @@ begin
     read_set_table <= S_read_set_table;
     write_set_table <= S_write_set_table;
     
-    addr_in_stk <= S_SP_F_put(7 downto 0); --when (S_write_stk = '1') else
-    addr_out_stk <= S_SP_F_pop(7 downto 0); -- when (S_read_stk = '1') else (others => '0');
+    addr_in_stk <= S_SP_F_put(10 downto 0); --when (S_write_stk = '1') else
+    addr_out_stk <= S_SP_F_pop(10 downto 0); -- when (S_read_stk = '1') else (others => '0');
                 
     --process(S_write_fail_stk, S_read_fail_stk)
     --begin
         --if(S_write_fail_stk = '1') then
-            addr_in_fail_stk <= S_SP_F_fail_put(7 downto 0);
+            addr_in_fail_stk <= S_SP_F_fail_put(10 downto 0);
         --elsif(S_read_fail_stk = '1') then
-            addr_out_fail_stk <= S_SP_F_fail_pop(7 downto 0);
+            addr_out_fail_stk <= S_SP_F_fail_pop(10 downto 0);
         --end if;
     --end process;
                 
@@ -348,9 +359,9 @@ begin
                      --S_SP_F_fail_pop when (S_read_fail_stk = '1') else (others => '0');
     
     addr_first_table <= S_PR_F;
-    addr1_first_record <= S_text_out;
+    addr1_first_record <= mem_d_8_in;
     addr2_first_record <= mem_d_in(7 downto 0);
-    addr1_set_table <= S_text_out;
+    addr1_set_table <= mem_d_8_in;
     addr2_set_table <= mem_d_in(7 downto 0);
     parse_success <= parse_success_reg;
     parse_fail <= parse_fail_reg;

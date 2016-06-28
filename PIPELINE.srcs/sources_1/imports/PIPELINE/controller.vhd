@@ -248,9 +248,54 @@ begin
 				
 	------------START CIRCUIT
 	S_START_rst <= not rst;
-	------------F1
-	S_F1_next_ist_D <= S_START or (S_next_ist and not S_s_jump_ok) or (S_jump) or S_fail_cond;
+	------------F1------------------------------------------------------------------------------------------
+	--S_F1_next_ist_D <= S_START or (S_next_ist and not S_s_jump_ok) or (S_jump) or S_fail_cond;
 	S_F1_next_text_D <= S_START or S_s_next_text;
+	
+		--F1 : f port map(
+       --clk => clk,
+       --next_ist => S_F1_next_ist_D,
+       --next_text => S_F1_next_text_D,
+       --instruction => instruction,
+       --text_in => text_in,
+       --nez_in => nez_in_f,
+       --text_out => text_out_f,
+       --jump_ok => S_s_jump_ok,
+       --f_out => S_f1);
+       
+    process(clk)
+       begin
+           if(clk'event and clk = '1') then
+               if(S_START = '1' or (S_next_ist = '1' and S_s_jump_ok = '0') or (S_jump = '1') or S_fail_cond = '1') then
+                   --nez_in_f <= instruction(15 downto 0);
+                   S_f1 <= '1';
+               else
+                   S_f1 <= '0';
+               end if;
+            end if;
+        end process;
+       
+    --process(clk)
+        --begin
+            --if(clk'event and clk = '1') then
+                --if(S_START = '1' or S_s_next_text = '1') then
+                    --text_out_f <= text_in;
+                --end if;
+             --end if;
+         --end process; 
+    
+    process(clk)
+          begin
+              if(clk'event and clk = '1') then
+                  if(instruction(23 downto 16) /= "00000000") then
+                      S_s_jump_ok <= '1';
+                  else
+                      S_s_jump_ok <= '0';
+                  end if;
+               end if;
+           end process;
+	
+	-----------------------------------------------------------------------------------------------
 	
 	--S_F2_D <= S_f1;
 	
@@ -268,16 +313,6 @@ begin
 
 	--S_Set <= Set_r and S_Dec;
 	
-	F1 : f port map(
-	   clk => clk,
-	   next_ist => S_F1_next_ist_D,
-	   next_text => S_F1_next_text_D,
-	   instruction => instruction,
-	   text_in => text_in,
-	   nez_in => nez_in_f,
-	   text_out => text_out_f,
-	   jump_ok => S_s_jump_ok,
-	   f_out => S_f1);
 	
 	S_jump_ok <= S_s_jump_ok and S_next_ist;
 	
@@ -326,7 +361,7 @@ begin
       Pass_r => S_Pass,
       Skip_r => S_Skip,
       instruction => instruction(15 downto 0),
-      text_in => text_out_f,
+      text_in => text_in,
       Wait_text => S_wait_text_D,
       Str_goto_next_text => S_str_goto_next_text,
       Next_ist => S_next_ist,

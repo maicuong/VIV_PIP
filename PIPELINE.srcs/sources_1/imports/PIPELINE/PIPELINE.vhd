@@ -26,7 +26,7 @@ architecture Behavioral of TEST is
 	   addr_8 : out std_logic_vector(31 downto 0);
 	   addr : out std_logic_vector(7 downto 0);
 	   addr_first_table : out std_logic_vector(31 downto 0);
-       addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(7 downto 0);
+       addr_in_stk, addr_out_stk, addr_in_fail_stk, addr_out_fail_stk : out std_logic_vector(10 downto 0);
        addr1_first_record, addr2_first_record, addr1_set_table, addr2_set_table : out std_logic_vector(7 downto 0);
        mem_d_stk_in, mem_d_fail_stk_in : out std_logic_vector(31 downto 0);
        parse_success, parse_fail : out std_logic);
@@ -40,14 +40,14 @@ architecture Behavioral of TEST is
 	end component;
 	
 	component MEMORY_8 port(
-	   read, write, rst : in std_logic;
+	   clk, read, write, rst : in std_logic;
 	   addr : in std_logic_vector(31 downto 0);
 	   data : inout std_logic_vector(7 downto 0));
 	end component;
 	
 	component MEMORY_STK port(
        clk, read, write : in std_logic;
-       addr_in, addr_out : in std_logic_vector(7 downto 0);
+       addr_in, addr_out : in std_logic_vector(10 downto 0);
        data_in : in std_logic_vector(31 downto 0);
        data_out : out std_logic_vector(31 downto 0));
     end component;
@@ -103,13 +103,13 @@ architecture Behavioral of TEST is
     signal test : std_logic_vector(28 downto 0) := (others => '0');
     
     signal read_stk, write_stk : std_logic;
-    signal addr_in_stk, addr_out_stk : std_logic_vector(7 downto 0);
+    signal addr_in_stk, addr_out_stk : std_logic_vector(10 downto 0);
     signal mem_d_stk_in, mem_d_stk_out : std_logic_vector(31 downto 0);
     
     signal check : std_logic;
     
     signal read_fail_stk, write_fail_stk : std_logic; 
-    signal addr_in_fail_stk, addr_out_fail_stk : std_logic_vector(7 downto 0);  
+    signal addr_in_fail_stk, addr_out_fail_stk : std_logic_vector(10 downto 0);  
     signal mem_d_fail_stk_in, mem_d_fail_stk_out : std_logic_vector(31 downto 0);
     
     signal S_parse_success, S_parse_fail : std_logic;
@@ -179,6 +179,7 @@ begin
 	   data_out => mem_d_in);
 	   
 	MEMORY2 : MEMORY_8 port map(
+	   clk => bus_clk,
 	   read => read_8, 
 	   write => write_8,
 	   rst => rst, 
@@ -236,7 +237,8 @@ begin
     end process;
 	
 	bus_clk <= test(24);
-
+    --bus_clk <= clk;
+    
 	process(bus_clk)
 	begin
 		if(bus_clk'event and bus_clk = '1') then
