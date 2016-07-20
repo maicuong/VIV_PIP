@@ -48,7 +48,7 @@ architecture Behavioral of controller is
 	
 	component Ex 
       Port (clk, parse_success, parse_fail, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Alt_r, Return_r, Succ_r, Oset_r,
-            Oset_or_r, Str_first, Str_second, First_r, set_table_data, Pass_r, Skip_r : in  std_logic;
+            Oset_or_r, Str_first, Str_second, First_r, set_table_data, Pass_r, Skip_r, Any_r, Rbyte_r, Nbyte_r, Nset_r, Nany_r : in  std_logic;
             instruction : in std_logic_vector(15 downto 0);
             text_in : in std_logic_vector(7 downto 0);
             Wait_text, Str_goto_next_text, Next_text, Next_ist, Fail : out std_logic);
@@ -61,7 +61,7 @@ architecture Behavioral of controller is
     
     signal S_Byte, S_Set, S_Set_or, S_Obyte, S_Nany, S_Rset, S_Call, 
             S_Return, S_Alt, S_Oset, S_Oset_or, S_str_first, S_str_second, S_First, 
-            S_Fail_inst, S_Succ, S_Pass, S_Skip : std_logic;
+            S_Fail_inst, S_Succ, S_Pass, S_Skip, S_Any, S_Rbyte, S_Nbyte, S_Nset : std_logic;
     signal S_s_match, S_s_fail : std_logic;
     signal S_next_ist, S_s_next_text, S_str_goto_next_text : std_logic;
 	
@@ -82,7 +82,7 @@ architecture Behavioral of controller is
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, ALt_r : out std_logic;
         Byte_r, Oset_r, Oset_or_r, Str_first_r, Str_second_r, First_r, Fail_r, 
-        Succ_r, Pass_r, Skip_r : out std_logic);
+        Succ_r, Pass_r, Skip_r, Any_r, Rbyte_r, Nbyte_r, Nset_r, Nany_r : out std_logic);
     end component;
     
     signal S_START1 : std_logic;
@@ -337,7 +337,12 @@ begin
 	   Fail_r => S_Fail_inst,
 	   Succ_r => S_Succ,
 	   Pass_r => S_Pass,
-	   Skip_r => S_Skip);
+	   Skip_r => S_Skip,
+	   Any_r => S_Any,
+	   Rbyte_r => S_Rbyte,
+	   Nbyte_r => S_Nbyte,
+	   Nset_r => S_Nset,
+	   Nany_r => S_Nany);
 
 	Ex1 : Ex port map(
 	  clk => clk,
@@ -360,6 +365,11 @@ begin
       set_table_data => set_table_data,
       Pass_r => S_Pass,
       Skip_r => S_Skip,
+      Any_r => S_Any,
+      Rbyte_r => S_Rbyte,
+      Nbyte_r => S_Nbyte,
+      Nset_r => S_Nset,
+      Nany_r => S_Nany,
       instruction => instruction(15 downto 0),
       text_in => text_in,
       Wait_text => S_wait_text_D,

@@ -254,7 +254,9 @@ begin
     process(clk)
     begin
         if(clk'event and clk = '1') then
-            if((S_SP_F_pop = "1111111111111111" and S_read_stk = '1') 
+            if(rst = '1') then
+                parse_success_reg <= '0';
+            elsif((S_SP_F_pop = "1111111111111111" and S_read_stk = '1') 
                 or (mem_d_stk_out = "00000000000000000000000000000000" and S_s_read_stk1 = '1')) then    
                 parse_success_reg <= '1';
             end if;

@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity Ex is
  Port (clk, parse_success, parse_fail, Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, Return_r, Alt_r, Oset_r, 
-        Oset_or_r, Str_first, Str_second, First_r, Succ_r, set_table_data, Pass_r, Skip_r : in  std_logic;
+        Oset_or_r, Str_first, Str_second, First_r, Succ_r, set_table_data, Pass_r, Skip_r, Any_r, Rbyte_r, Nbyte_r, Nset_r, Nany_r : in  std_logic;
         instruction : in std_logic_vector(15 downto 0);
         text_in : in std_logic_vector(7 downto 0);
         Wait_text, Str_goto_next_text, Next_text, Next_ist, Fail: out std_logic);
@@ -42,6 +42,16 @@ end Ex;
 architecture Behavioral of Ex is
 	---Byte
 component Byte
+    port(
+    CLK : in std_logic;
+    TRG : in std_logic;
+    TEXT_IN : in std_logic_vector(7 downto 0);
+    NEZ_IN : in std_logic_vector(7 downto 0) ;
+    FAIL : out std_logic;
+    MATCH : out std_logic);
+end component;
+
+component NByte
     port(
     CLK : in std_logic;
     TRG : in std_logic;
@@ -83,6 +93,7 @@ end component;
 
 component Nany
 	port(
+	    clk : in std_logic;
 		TRG : in std_logic;
 		TEXT_IN : in std_logic_vector(7 downto 0);
 		FAIL : out std_logic;
@@ -111,6 +122,16 @@ component OSet
 		MATCH : out std_logic);
 end component;
 
+component Rbyte
+	port(
+	    CLK : in std_logic;
+		TRG : in std_logic;
+		TEXT_IN : in std_logic_vector(7 downto 0);
+		NEZ_IN : in std_logic_vector(7 downto 0) ;
+		NEXT_IST : out std_logic;
+		NEXT_TEXT : out std_logic);
+end component;
+
 component OSet_or
 	port(
 	    CLK : in std_logic;
@@ -135,16 +156,20 @@ component Str
 end component;
 
 signal S_byte_match, S_byte_fail : std_logic;
+signal S_nbyte_match, S_nbyte_fail : std_logic;
 signal S_set_match, S_set_fail : std_logic;
+signal S_nset_match, S_nset_fail : std_logic;
 signal S_set_or_match, S_set_or_fail : std_logic;
 signal S_obyte_match, S_obyte_next_text : std_logic;
 signal S_nany_match, S_nany_fail : std_logic;
 signal S_rset_next_ist, S_rset_next_text : std_logic;
-signal S_call, S_Return, S_Alt, S_First, S_Succ, S_Set, S_Pass, S_Skip : std_logic;
-signal S_s_set, S_rset, S_oset : std_logic;
+signal S_call, S_Return, S_Alt, S_First, S_Succ, S_Set, S_Pass, S_Skip, S_Any : std_logic;
+signal S_s_set, S_rset, S_oset, S_nset : std_logic;
 signal S_oset_match, S_oset_next_text : std_logic;
 signal S_oset_or_match, S_oset_or_next_text : std_logic;
 signal S_str_goto_next_text, S_str_match, S_str_fail : std_logic;
+
+signal S_rbyte_next_ist, S_rbyte_next_text : std_logic;
 
 begin
 
@@ -155,6 +180,14 @@ begin
 		NEZ_IN => instruction(7 downto 0),
 		FAIL => S_byte_fail,
 		MATCH => S_byte_match);
+		
+	NByte1 : NByte port map (
+            CLK => clk,
+            TRG => NByte_r,
+            TEXT_IN => text_in,
+            NEZ_IN => instruction(7 downto 0),
+            FAIL => S_nbyte_fail,
+            MATCH => S_nbyte_match);
 		
 	--Set1 : Set port map(
 	    --CLK => clk,
@@ -189,6 +222,14 @@ begin
            NEXT_IST => S_rset_next_ist,
            NEXT_TEXT => S_rset_next_text);
            
+	Rbyte1 : Rbyte port map(
+           CLK => clk,
+           TRG => Rbyte_r,
+		   TEXT_IN => text_in,
+           NEZ_IN => instruction(7 downto 0),
+           NEXT_IST => S_rbyte_next_ist,
+           NEXT_TEXT => S_rbyte_next_text);
+           
            
      Oset1 : Oset port map(
            CLK => clk,
@@ -207,15 +248,24 @@ begin
            --NEXT_TEXT => S_oset_or_next_text,
            --MATCH => S_oset_or_match);
 
-    Str1 : Str port map(
-	    CLK => clk,
-		FIRST_TRG => Str_first,
-		SECOND_TRG => Str_second,
-		TEXT_IN => text_in,
-		NEZ_IN => instruction(15 downto 0),
-		GOTO_NEXT_TEXT => S_str_goto_next_text,
-		FAIL => S_str_fail,
-		MATCH => S_str_match);
+    --Str1 : Str port map(
+	    --CLK => clk,
+		--FIRST_TRG => Str_first,
+		--SECOND_TRG => Str_second,
+		--TEXT_IN => text_in,
+		--NEZ_IN => instruction(15 downto 0),
+		--GOTO_NEXT_TEXT => S_str_goto_next_text,
+		--FAIL => S_str_fail,
+		--MATCH => S_str_match);
+	
+	Nany1 : Nany 
+		port map(
+            clk => clk,
+            TRG => Nany_r,
+            TEXT_IN => text_in,
+            FAIL => S_nany_fail,
+            MATCH => S_nany_match);	
+    
            
       process(clk)
                 begin
@@ -286,6 +336,17 @@ begin
    process(clk)
       begin
         if(clk'event and clk = '1') then
+           if(NSet_r = '1') then
+              S_nset <= '1';
+           else
+              S_nset <= '0';
+           end if;
+        end if;
+   end process;
+   
+   process(clk)
+      begin
+        if(clk'event and clk = '1') then
            if(S_set = '1') then
               S_s_set <= '1';
            else
@@ -338,6 +399,17 @@ begin
         end if;
    end process;
    
+  process(clk)
+       begin
+         if(clk'event and clk = '1') then
+            if(Any_r = '1') then
+               S_Any <= '1';
+            else
+               S_Any <= '0';
+            end if;
+         end if;
+    end process;
+   
    --process(clk)
       --begin
         --if(clk'event and clk = '1') then
@@ -354,14 +426,17 @@ begin
    
    S_set_match <= S_s_Set and set_table_data;
    S_set_fail <= S_s_Set and not set_table_data;
+   
+   S_nset_match <= S_nset and not set_table_data;
+   S_nset_fail <= S_nset and set_table_data;
 
-    Next_ist <= (S_set_match or S_byte_match  or S_obyte_match 
-        or S_rset_next_ist or S_Call or S_Return or S_Alt or S_oset_match 
-        or S_str_match or S_First or S_Succ or S_Pass or S_Skip) and not (parse_success or parse_fail);
-    Fail <= (S_set_fail or S_byte_fail or S_str_fail) and not (parse_success or parse_fail);
-    Wait_text <= S_rset_next_text;
+    Next_ist <= (S_set_match or S_byte_match or S_nbyte_match or S_obyte_match 
+        or S_rset_next_ist or S_rbyte_next_ist or S_Call or S_Return or S_Alt or S_oset_match 
+        or S_str_match or S_First or S_Succ or S_Pass or S_Skip or S_Any or S_nset_match or S_nany_match) and not (parse_success or parse_fail);
+    Fail <= (S_set_fail or S_byte_fail or S_nbyte_fail or S_str_fail or S_nset_fail or S_nany_fail) and not (parse_success or parse_fail);
+    Wait_text <= S_rset_next_text or S_rbyte_next_text;
     Str_goto_next_text <= S_str_goto_next_text; 
     Next_text <= S_set_match or S_byte_match  or S_obyte_next_text 
-        or S_rset_next_text or S_oset_next_text or S_str_goto_next_text or S_str_match;
+        or S_rset_next_text or S_rbyte_next_text or S_oset_next_text or S_str_goto_next_text or S_str_match or S_Any;
 
 end Behavioral;

@@ -3,6 +3,7 @@ library UNISIM;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use UNISIM.Vcomponents.ALL;
+use ieee.numeric_std.all;
 
 entity TEST is
     port(clk: in std_logic;
@@ -116,6 +117,34 @@ architecture Behavioral of TEST is
     
     signal addr_first_table_test, addr_first_table_test_1 : std_logic_vector(8 downto 0); 
     signal data_in_first_table_test, data_in_first_table_test_1, data_out_first_table_test, data_out_first_table_test_1  : std_logic_vector(7 downto 0);
+    
+    component fifo_generator_0 
+      PORT (
+        clk : IN STD_LOGIC;
+        srst : IN STD_LOGIC;
+        din : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+        wr_en : IN STD_LOGIC;
+        rd_en : IN STD_LOGIC;
+        dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+        full : OUT STD_LOGIC;
+        empty : OUT STD_LOGIC
+      );
+    end component;
+    
+    signal srst : STD_LOGIC := '0';
+    signal din : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '1');
+    signal wr_en : STD_LOGIC := '0';
+    signal rd_en : STD_LOGIC := '0';
+    --signal dout : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    signal full : STD_LOGIC;
+    signal empty : STD_LOGIC;
+    
+    type arr is array(0 to 4) of character;
+    signal char_arr : arr := ('1', '+', '1', ' ', ' ');
+    signal count_char : natural := 0;
+    signal char : character;
+    
+    signal start, stop : std_logic := '0';
    
 begin
 	
@@ -165,6 +194,7 @@ begin
     parse_fail <= S_parse_fail;
     
 	   
+	   
 	--match <= '1';
 	  
 	
@@ -178,13 +208,50 @@ begin
 	   data_in => mem_d_out,
 	   data_out => mem_d_in);
 	   
-	MEMORY2 : MEMORY_8 port map(
-	   clk => bus_clk,
-	   read => read_8, 
-	   write => write_8,
-	   rst => rst, 
-	   addr => addr_8, 
-	   data => mem_d_8_in);
+	--MEMORY2 : MEMORY_8 port map(
+	   --clk => bus_clk,
+	   --read => read_8, 
+	   --write => write_8,
+	   --rst => rst, 
+	   --addr => addr_8, 
+	   --data => mem_d_8_in);
+	   
+     FF : fifo_generator_0 port map (
+         clk => bus_clk,
+         srst => srst,
+         din => din,
+         wr_en => wr_en,
+         rd_en => rd_en,
+         dout => mem_d_8_in,
+         full => full,
+         empty => empty
+       );
+      
+  process(bus_clk)
+       begin
+          if(bus_clk'event and bus_clk = '1') then
+              if(count_char < 4 and full = '0') then
+                  char <= char_arr(count_char);
+                  wr_en <= '1';
+                  din <= std_logic_vector(to_unsigned(natural(character'pos(char_arr(count_char))),8));
+                  count_char <= count_char + 1;
+              else
+                  wr_en <= '0';
+              end if;
+          end if;
+       end process;    
+       
+   process(bus_clk)
+    begin
+       if(bus_clk'event and bus_clk = '0') then
+        if(read_8 = '1') then
+            rd_en <= '1';
+        else
+            rd_en <= '0';
+        end if;
+       end if;
+   end process;
+    
 	   
 	MEMORY_RETURN : MEMORY_STK port map(
 	   clk => bus_clk,
@@ -236,13 +303,30 @@ begin
 	   end if;
     end process;
 	
-	bus_clk <= test(24);
+	bus_clk <= test(0);
     --bus_clk <= clk;
+    
+    process(empty)
+    begin
+        if(empty'event and empty = '0') then
+            start <= '1';
+            stop <= '0';
+        end if;
+        if(empty'event and empty = '1') then
+            stop <= '1';
+            start <= '0';
+        end if;
+    end process;
     
 	process(bus_clk)
 	begin
 		if(bus_clk'event and bus_clk = '1') then
+		  if(start = '1') then
 			count <= count + 1;
+		  elsif(stop = '1') then
+		    count <= 0;
+	      end if;
+	      
 			if(count = 3) then	
 				rst <= '1';
 			else

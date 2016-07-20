@@ -36,7 +36,7 @@ entity Dec is
         instruction : in std_logic_vector(31 downto 0);
         Set_r, Byte_r, Set_or_r, Obyte_r, Rset_r, Call_r, 
         Return_r, Alt_r, OSet_r, OSet_or_r, Str_first_r, Str_second_r, 
-        First_r, Fail_r, Succ_r, Pass_r, Skip_r : out std_logic);
+        First_r, Fail_r, Succ_r, Pass_r, Skip_r, Any_r, Rbyte_r, Nbyte_r, Nset_r, Nany_r : out std_logic);
 end Dec;
 
 architecture Behavioral of Dec is
@@ -293,5 +293,81 @@ process(clk)
               end if;
             end if;
         end process;
+        
+process(clk)
+                   begin
+                    if(clk'event and clk = '1') then
+                      if (trg = '1') then
+                        if(instruction(31 downto 24) = "00001110") then
+                          Any_r <= '1';
+                        else
+                          Any_r <= '0';
+                        end if;
+                      else 
+                          Any_r <= '0';
+                      end if;
+                    end if;
+                end process;
+                
+process(clk)
+                           begin
+                            if(clk'event and clk = '1') then
+                              if (trg = '1') then
+                                if(instruction(31 downto 24) = "00001111") then
+                                  Rbyte_r <= '1';
+                                else
+                                  Rbyte_r <= '0';
+                                end if;
+                              else 
+                                  Rbyte_r <= '0';
+                              end if;
+                            end if;
+                        end process;
+                        
+process(clk)
+                                   begin
+                                    if(clk'event and clk = '1') then
+                                      if (trg = '1') then
+                                        if(instruction(31 downto 24) = "00010000") then
+                                          Nbyte_r <= '1';
+                                        else
+                                          Nbyte_r <= '0';
+                                        end if;
+                                      else 
+                                          Nbyte_r <= '0';
+                                      end if;
+                                    end if;
+                                end process;
+                                
+process(clk)
+                                           begin
+                                            if(clk'event and clk = '1') then
+                                              if (trg = '1') then
+                                                if(instruction(31 downto 24) = "00010001") then
+                                                  Nset_r <= '1';
+                                                else
+                                                  Nset_r <= '0';
+                                                end if;
+                                              else 
+                                                  Nset_r <= '0';
+                                              end if;
+                                            end if;
+                                        end process;
+                                        
+process(clk)
+                                                   begin
+                                                    if(clk'event and clk = '1') then
+                                                      if (trg = '1') then
+                                                        if(instruction(31 downto 24) = "00010010") then
+                                                          Nany_r <= '1';
+                                                        else
+                                                          Nany_r <= '0';
+                                                        end if;
+                                                      else 
+                                                          Nany_r <= '0';
+                                                      end if;
+                                                    end if;
+                                                end process;
+                        
 
 end Behavioral;
