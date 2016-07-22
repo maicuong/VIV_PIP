@@ -132,12 +132,12 @@ architecture Behavioral of TEST is
     end component;
     
     signal srst : STD_LOGIC := '0';
-    signal din : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '1');
-    signal wr_en : STD_LOGIC := '0';
-    signal rd_en : STD_LOGIC := '0';
-    --signal dout : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    signal full : STD_LOGIC;
-    signal empty : STD_LOGIC;
+    signal din_write, din_read : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '1');
+    signal wr_en_read, wr_en_write : STD_LOGIC := '0';
+    signal rd_en_read, rd_en_write : STD_LOGIC := '0';
+    signal dout_read, dout_write : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    signal full_read, full_write : STD_LOGIC;
+    signal empty_read, empty_write : STD_LOGIC;
     
     type arr is array(0 to 4) of character;
     signal char_arr : arr := ('1', '+', '1', ' ', ' ');
@@ -145,6 +145,8 @@ architecture Behavioral of TEST is
     signal char : character;
     
     signal start, stop : std_logic := '0';
+    
+    signal write_done : std_logic := '0';
    
 begin
 	
@@ -216,27 +218,27 @@ begin
 	   --addr => addr_8, 
 	   --data => mem_d_8_in);
 	   
-     FF : fifo_generator_0 port map (
+     FF_write : fifo_generator_0 port map (
          clk => bus_clk,
          srst => srst,
-         din => din,
-         wr_en => wr_en,
-         rd_en => rd_en,
+         din => din_write,
+         wr_en => wr_en_write,
+         rd_en => rd_en_write,
          dout => mem_d_8_in,
-         full => full,
-         empty => empty
+         full => full_write,
+         empty => empty_write
        );
       
   process(bus_clk)
        begin
           if(bus_clk'event and bus_clk = '1') then
-              if(count_char < 4 and full = '0') then
+              if(count_char < 4 and full_write = '0') then
                   char <= char_arr(count_char);
-                  wr_en <= '1';
-                  din <= std_logic_vector(to_unsigned(natural(character'pos(char_arr(count_char))),8));
+                  wr_en_write <= '1';
+                  din_write <= std_logic_vector(to_unsigned(natural(character'pos(char_arr(count_char))),8));
                   count_char <= count_char + 1;
               else
-                  wr_en <= '0';
+                  wr_en_write <= '0';
               end if;
           end if;
        end process;    
@@ -245,12 +247,41 @@ begin
     begin
        if(bus_clk'event and bus_clk = '0') then
         if(read_8 = '1') then
-            rd_en <= '1';
+            rd_en_write <= '1';
         else
-            rd_en <= '0';
+            rd_en_write <= '0';
         end if;
        end if;
    end process;
+   
+     FF_read : fifo_generator_0 port map (
+         clk => bus_clk,
+         srst => srst,
+         din => din_read,
+         wr_en => wr_en_read,
+         rd_en => rd_en_read,
+         dout => dout_read,
+         full => full_read,
+         empty => empty_read
+       );
+    
+    din_read <= std_logic_vector(to_unsigned(natural(character'pos('a')),8));
+    rd_en_read <= not empty_read;
+    
+    process(S_parse_success, bus_clk)
+    begin
+        if(bus_clk'event and bus_clk = '1') then
+        if(rst = '1') then
+            write_done <= '0';
+        elsif(S_parse_success = '1' and write_done = '0') then
+            wr_en_read <= '1';
+            write_done <= '1';
+        else
+            wr_en_read <= '0';
+        end if;
+       end if;
+    end process;
+    
     
 	   
 	MEMORY_RETURN : MEMORY_STK port map(
@@ -306,13 +337,13 @@ begin
 	bus_clk <= test(0);
     --bus_clk <= clk;
     
-    process(empty)
+    process(empty_write)
     begin
-        if(empty'event and empty = '0') then
+        if(empty_write'event and empty_write = '0') then
             start <= '1';
             stop <= '0';
         end if;
-        if(empty'event and empty = '1') then
+        if(empty_write'event and empty_write = '1') then
             stop <= '1';
             start <= '0';
         end if;
